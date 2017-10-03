@@ -78,12 +78,7 @@
 </ul>
 </li>
 <li><a href="#user-stories">Appendix B: User Stories</a></li>
-<li><a href="#use-cases">Appendix C: Use Cases</a>
-<ul class="sectlevel2">
-<li><a href="#use-case-update-module-in-a-particular-timeslot">C.1. Use case: Update module in a particular timeslot</a></li>
-<li><a href="#use-case-delete-module-by-module-timeslot-location">C.2. Use case: Delete module by module/timeslot/location</a></li>
-</ul>
-</li>
+<li><a href="#use-cases">Appendix C: Use Cases</a></li>
 <li><a href="#non-functional-requirements">Appendix D: Non Functional Requirements</a></li>
 <li><a href="#glossary">Appendix E: Glossary</a></li>
 <li><a href="#product-survey">Appendix F: Product Survey</a></li>
@@ -1929,9 +1924,6 @@ for <code>RemarkCommandParser</code>.</p>
 </tr>
 </tbody>
 </table>
-<div class="paragraph">
-<p>{More to be added}</p>
-</div>
 </div>
 </div>
 <div class="sect1">
@@ -1990,8 +1982,7 @@ for <code>RemarkCommandParser</code>.</p>
 </li>
 </ul>
 </div>
-<div class="sect2">
-<h3 id="use-case-update-module-in-a-particular-timeslot"><a class="link" href="#use-case-update-module-in-a-particular-timeslot">C.1. Use case: Update module in a particular timeslot</a></h3>
+<h3 id="use-case-update-module-in-a-particular-timeslot" class="discrete">Use case: Update module in a particular timeslot</h3>
 <div class="paragraph">
 <p><strong>MSS</strong></p>
 </div>
@@ -2040,9 +2031,7 @@ for <code>RemarkCommandParser</code>.</p>
 </li>
 </ul>
 </div>
-</div>
-<div class="sect2">
-<h3 id="use-case-delete-module-by-module-timeslot-location"><a class="link" href="#use-case-delete-module-by-module-timeslot-location">C.2. Use case: Delete module by module/timeslot/location</a></h3>
+<h3 id="use-case-delete-module-by-module-timeslot-location" class="discrete">Use case: Delete module by module/timeslot/location</h3>
 <div class="paragraph">
 <p><strong>MSS</strong></p>
 </div>
@@ -2322,25 +2311,82 @@ for <code>RemarkCommandParser</code>.</p>
 </div>
 </div>
 </div>
-</div>
 <div class="sect1">
 <h2 id="non-functional-requirements"><a class="link" href="#non-functional-requirements">Appendix D: Non Functional Requirements</a></h2>
 <div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Should work on any <a href="#mainstream-os">mainstream OS</a> as long as it has Java <code>1.8.0_60</code> or higher installed.</p>
-</li>
-<li>
-<p>Should be able to hold up to 1000 persons without a noticeable sluggishness in performance for typical usage.</p>
-</li>
-<li>
-<p>A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.</p>
-</li>
-</ol>
+<div class="literalblock">
+<div class="content">
+<pre>Environment requirement(s):
+    .  Should work on any link:#mainstream-os[mainstream OS] as long as it has Java `1.8.0_60` or higher installed.
+    .  Minimum 512 MB of RAM memory
+    .  Server should have minimum 5 GB of storage size
+    .  Compatible with both 32-bits and 64-bits systems</pre>
 </div>
-<div class="paragraph">
-<p>{More to be added}</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Capacity
+    .  Should be able to hold up to 10000 persons without a noticeable sluggishness in performance for typical usage.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Constraint(s)
+    .  The system should be backward compatible with data produced by earlier version of the system
+    .  The total project cost should not exceed $10,000
+    .  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Performance requirement(s):
+    .  The application should be respond to 1000 people within 2 seconds
+    .  Time to restart after failure should not be more than 5 seconds
+    .  Screen refresh time should be less than 1 second</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Quality requirement(s):
+    .  The system should be usable by a novice who has never used an online timetable planner</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Process requirement(s)
+    .  The project is expected to adhere a schedule that delivers an enhancement every week before tutorial.</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Privacy:
+    .  Admin have higher access than lecturer as they have to manage the system</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Notes about project scope:
+    .  The product is not required to allow users to chat and message with each other</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Portability:
+    .  Can be compiled and run in different operating systems and processors</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Security:
+    .  The application must preserve the availability, integrity and confidentiality of data</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Reliability:
+    .  Data created in the system will be retained for 2 years
+    .  System must have less than 1 hour downtime per 3 months (e.g. to update/maintain the system)</pre>
+</div>
 </div>
 </div>
 </div>
@@ -2405,7 +2451,7 @@ for <code>RemarkCommandParser</code>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-10-03 01:50:53 +00:00
+Last updated 2017-10-03 08:39:00 +00:00
 </div>
 </div>
 </body>
