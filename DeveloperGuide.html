@@ -35,7 +35,7 @@
 <li><a href="#design">2. Design</a>
 <ul class="sectlevel2">
 <li><a href="#architecture">2.1. Architecture</a></li>
-<li><a href="#ui-component">2.2. UI component</a></li>
+<li><a href="#a-href-ui-ui-a-component">2.2. <a href="#ui">UI</a> component</a></li>
 <li><a href="#logic-component">2.3. Logic component</a></li>
 <li><a href="#model-component">2.4. Model component</a></li>
 <li><a href="#storage-component">2.5. Storage component</a></li>
@@ -117,7 +117,7 @@ This app will not work with earlier versions of Java 8.
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-IntelliJ by default has Gradle and JavaFx plugins installed.<br>
+IntelliJ by default has <a href="#gradle">Gradle</a> and <a href="#javaFX">JavaFX</a> plugins installed.<br>
 Do not disable them. If you have disabled them, go to <code>File</code> &gt; <code>Settings</code> &gt; <code>Plugins</code> to re-enable them.
 </td>
 </tr>
@@ -138,7 +138,7 @@ Do not disable them. If you have disabled them, go to <code>File</code> &gt; <co
 <p>Open IntelliJ (if you are not in the welcome screen, click <code>File</code> &gt; <code>Close Project</code> to close the existing project dialog first)</p>
 </li>
 <li>
-<p>Set up the correct JDK version for Gradle</p>
+<p>Set up the correct JDK version for <a href="#gradle">Gradle</a></p>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -225,7 +225,7 @@ This will generate all resources required by the application and tests.</p>
 <div class="sect3">
 <h4 id="setting-up-ci"><a class="link" href="#setting-up-ci">1.4.3. Setting up CI</a></h4>
 <div class="paragraph">
-<p>Set up Travis to perform Continuous Integration (CI) for your fork. See <a href="UsingTravis.html">UsingTravis.adoc</a> to learn how to set it up.</p>
+<p>Set up <a href="#travis">Travis</a> to perform Continuous Integration (CI) for your fork. See <a href="UsingTravis.html">UsingTravis.adoc</a> to learn how to set it up.</p>
 </div>
 <div class="paragraph">
 <p>Optionally, you can set up AppVeyor as a second CI (see <a href="UsingAppVeyor.html">UsingAppVeyor.adoc</a>).</p>
@@ -237,7 +237,7 @@ This will generate all resources required by the application and tests.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Having both Travis and AppVeyor ensures your App works on both Unix-based platforms and Windows-based platforms (Travis is Unix-based and AppVeyor is Windows-based)
+Having both <a href="#travis">Travis</a> and AppVeyor ensures your App works on both Unix-based platforms and Windows-based platforms (Travis is Unix-based and AppVeyor is Windows-based)
 </td>
 </tr>
 </table>
@@ -322,7 +322,7 @@ The <code>.pptx</code> files used to create diagrams in this document can be fou
 <div class="ulist">
 <ul>
 <li>
-<p><a href="#ui-component"><strong><code>UI</code></strong></a> : The UI of the App.</p>
+<p><a href="#ui-component"><strong><code>UI</code></strong></a> : The <a href="#ui">UI</a> of the App.</p>
 </li>
 <li>
 <p><a href="#logic-component"><strong><code>Logic</code></strong></a> : The command executor.</p>
@@ -341,7 +341,7 @@ The <code>.pptx</code> files used to create diagrams in this document can be fou
 <div class="ulist">
 <ul>
 <li>
-<p>Defines its <em>API</em> in an <code>interface</code> with the same name as the Component.</p>
+<p>Defines its <em><a href="#api">API</a></em> in an <code>interface</code> with the same name as the Component.</p>
 </li>
 <li>
 <p>Exposes its functionality using a <code>{Component Name}Manager</code> class.</p>
@@ -349,7 +349,7 @@ The <code>.pptx</code> files used to create diagrams in this document can be fou
 </ul>
 </div>
 <div class="paragraph">
-<p>For example, the <code>Logic</code> component (see the class diagram given below) defines it&#8217;s API in the <code>Logic.java</code> interface and exposes its functionality using the <code>LogicManager.java</code> class.</p>
+<p>For example, the <code>Logic</code> component (see the <a href="#class-diagram">class diagram</a> given below) defines it&#8217;s <a href="#api">API</a> in the <code>Logic.java</code> interface and exposes its functionality using the <code>LogicManager.java</code> class.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -357,11 +357,11 @@ The <code>.pptx</code> files used to create diagrams in this document can be fou
 </div>
 </div>
 <div class="paragraph">
-<p><em>Figure 2.1.2 : Class Diagram of the Logic Component</em></p>
+<p><em>Figure 2.1.2 : <a href="#class-diagram">Class Diagram</a> of the Logic Component</em></p>
 </div>
 <h4 id="events-driven-nature-of-the-design" class="discrete">Events-Driven nature of the design</h4>
 <div class="paragraph">
-<p>The <em>Sequence Diagram</em> below shows how the components interact for the scenario where the user issues the command <code>delete 1</code>.</p>
+<p>The <em><a href="#sequence-diagram">Sequence Diagram</a></em> below shows how the components interact for the scenario where the user issues the command <code>delete 1</code>.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -384,7 +384,7 @@ Note how the <code>Model</code> simply raises a <code>AddressBookChangedEvent</c
 </table>
 </div>
 <div class="paragraph">
-<p>The diagram below shows how the <code>EventsCenter</code> reacts to that event, which eventually results in the updates being saved to the hard disk and the status bar of the UI being updated to reflect the 'Last Updated' time.</p>
+<p>The diagram below shows how the <code>EventsCenter</code> reacts to that event, which eventually results in the updates being saved to the hard disk and the status bar of the <a href="#ui">UI</a> being updated to reflect the 'Last Updated' time.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -411,26 +411,26 @@ Note how the event is propagated through the <code>EventsCenter</code> to the <c
 </div>
 </div>
 <div class="sect2">
-<h3 id="ui-component"><a class="link" href="#ui-component">2.2. UI component</a></h3>
+<h3 id="a-href-ui-ui-a-component"><a class="link" href="#a-href-ui-ui-a-component">2.2. <a href="#ui">UI</a> component</a></h3>
 <div class="imageblock">
 <div class="content">
 <img src="images/UiClassDiagram.png" alt="UiClassDiagram" width="800">
 </div>
 </div>
 <div class="paragraph">
-<p><em>Figure 2.2.1 : Structure of the UI Component</em></p>
+<p><em>Figure 2.2.1 : Structure of the <a href="#ui">UI</a> Component</em></p>
 </div>
 <div class="paragraph">
-<p><strong>API</strong> : <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/ui/Ui.java"><code>Ui.java</code></a></p>
+<p><strong><a href="#api">API</a></strong> : <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/ui/Ui.java"><code>Ui.java</code></a></p>
 </div>
 <div class="paragraph">
-<p>The UI consists of a <code>MainWindow</code> that is made up of parts e.g.<code>CommandBox</code>, <code>ResultDisplay</code>, <code>PersonListPanel</code>, <code>StatusBarFooter</code>, <code>BrowserPanel</code> etc. All these, including the <code>MainWindow</code>, inherit from the abstract <code>UiPart</code> class.</p>
+<p>The <a href="#ui">UI</a> consists of a <code>MainWindow</code> that is made up of parts e.g.<code>CommandBox</code>, <code>ResultDisplay</code>, <code>PersonListPanel</code>, <code>StatusBarFooter</code>, <code>BrowserPanel</code> etc. All these, including the <code>MainWindow</code>, inherit from the abstract <code>UiPart</code> class.</p>
 </div>
 <div class="paragraph">
-<p>The <code>UI</code> component uses JavaFx UI framework. The layout of these UI parts are defined in matching <code>.fxml</code> files that are in the <code>src/main/resources/view</code> folder. For example, the layout of the <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/ui/MainWindow.java"><code>MainWindow</code></a> is specified in <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/resources/view/MainWindow.fxml"><code>MainWindow.fxml</code></a></p>
+<p>The <code><a href="#ui">UI</a></code> component uses <a href="#javaFX">JavaFX</a> <a href="#ui">UI</a> framework. The layout of these <a href="#ui">UI</a> parts are defined in matching <code>.fxml</code> files that are in the <code>src/main/resources/view</code> folder. For example, the layout of the <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/ui/MainWindow.java"><code>MainWindow</code></a> is specified in <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/resources/view/MainWindow.fxml"><code>MainWindow.fxml</code></a></p>
 </div>
 <div class="paragraph">
-<p>The <code>UI</code> component,</p>
+<p>The <code><a href="#ui">UI</a></code> component,</p>
 </div>
 <div class="ulist">
 <ul>
@@ -438,10 +438,10 @@ Note how the event is propagated through the <code>EventsCenter</code> to the <c
 <p>Executes user commands using the <code>Logic</code> component.</p>
 </li>
 <li>
-<p>Binds itself to some data in the <code>Model</code> so that the UI can auto-update when data in the <code>Model</code> change.</p>
+<p>Binds itself to some data in the <code>Model</code> so that the <a href="#ui">UI</a> can auto-update when data in the <code>Model</code> change.</p>
 </li>
 <li>
-<p>Responds to events raised from various parts of the App and updates the UI accordingly.</p>
+<p>Responds to events raised from various parts of the App and updates the <a href="#ui">UI</a> accordingly.</p>
 </li>
 </ul>
 </div>
@@ -465,7 +465,7 @@ Note how the event is propagated through the <code>EventsCenter</code> to the <c
 <p><em>Figure 2.3.2 : Structure of Commands in the Logic Component. This diagram shows finer details concerning <code>XYZCommand</code> and <code>Command</code> in Figure 2.3.1</em></p>
 </div>
 <div class="paragraph">
-<p><strong>API</strong> :
+<p><strong><a href="#api">API</a></strong> :
 <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/logic/Logic.java"><code>Logic.java</code></a></p>
 </div>
 <div class="olist arabic">
@@ -485,7 +485,7 @@ Note how the event is propagated through the <code>EventsCenter</code> to the <c
 </ol>
 </div>
 <div class="paragraph">
-<p>Given below is the Sequence Diagram for interactions within the <code>Logic</code> component for the <code>execute("delete 1")</code> API call.</p>
+<p>Given below is the <a href="#sequence-diagram">Sequence Diagram</a> for interactions within the <code>Logic</code> component for the <code>execute("delete 1")</code> <a href="#api">API</a> call.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -507,7 +507,7 @@ Note how the event is propagated through the <code>EventsCenter</code> to the <c
 <p><em>Figure 2.4.1 : Structure of the Model Component</em></p>
 </div>
 <div class="paragraph">
-<p><strong>API</strong> : <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/Model.java"><code>Model.java</code></a></p>
+<p><strong><a href="#api">API</a></strong> : <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/Model.java"><code>Model.java</code></a></p>
 </div>
 <div class="paragraph">
 <p>The <code>Model</code>,</p>
@@ -521,7 +521,7 @@ Note how the event is propagated through the <code>EventsCenter</code> to the <c
 <p>stores the Address Book data.</p>
 </li>
 <li>
-<p>exposes an unmodifiable <code>ObservableList&lt;ReadOnlyPerson&gt;</code> that can be 'observed' e.g. the UI can be bound to this list so that the UI automatically updates when the data in the list change.</p>
+<p>exposes an unmodifiable <code>ObservableList&lt;ReadOnlyPerson&gt;</code> that can be 'observed' e.g. the <a href="#ui">UI</a> can be bound to this list so that the <a href="#ui">UI</a> automatically updates when the data in the list change.</p>
 </li>
 <li>
 <p>does not depend on any of the other three components.</p>
@@ -540,7 +540,7 @@ Note how the event is propagated through the <code>EventsCenter</code> to the <c
 <p><em>Figure 2.5.1 : Structure of the Storage Component</em></p>
 </div>
 <div class="paragraph">
-<p><strong>API</strong> : <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/storage/Storage.java"><code>Storage.java</code></a></p>
+<p><strong><a href="#api">API</a></strong> : <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/storage/Storage.java"><code>Storage.java</code></a></p>
 </div>
 <div class="paragraph">
 <p>The <code>Storage</code> component,</p>
@@ -676,7 +676,7 @@ If the <code>undoStack</code> is empty, then there are no other commands left to
 </table>
 </div>
 <div class="paragraph">
-<p>The following sequence diagram shows how the undo operation works:</p>
+<p>The following <a href="#sequence-diagram">sequence diagram</a> shows how the undo operation works:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -715,7 +715,7 @@ If the <code>redoStack</code> is empty, then there are no other commands left to
 </div>
 </div>
 <div class="paragraph">
-<p>The following activity diagram summarize what happens inside the <code>UndoRedoStack</code> when a user executes a new command:</p>
+<p>The following <a href="#activity-diagram">activity diagram</a> summarize what happens inside the <code>UndoRedoStack</code> when a user executes a new command:</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -840,7 +840,7 @@ Alternatively, you can download the AsciiDoc plugin for IntelliJ, which allows y
 <div class="sect2">
 <h3 id="publishing-documentation"><a class="link" href="#publishing-documentation">4.2. Publishing Documentation</a></h3>
 <div class="paragraph">
-<p>See <a href="UsingTravis.html#deploying-github-pages">UsingTravis.adoc</a> to learn how to deploy GitHub Pages using Travis.</p>
+<p>See <a href="UsingTravis.html#deploying-github-pages">UsingTravis.adoc</a> to learn how to deploy GitHub Pages using <a href="#travis">Travis</a>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -893,7 +893,7 @@ Alternatively, you can download the AsciiDoc plugin for IntelliJ, which allows y
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-The most reliable way to run tests is the 3rd one. The first two methods might fail some GUI tests due to platform/resolution-specific idiosyncrasies.
+The most reliable way to run tests is the 3rd one. The first two methods might fail some <a href="#gui">GUI</a> tests due to platform/resolution-specific idiosyncrasies.
 </td>
 </tr>
 </table>
@@ -912,7 +912,7 @@ The most reliable way to run tests is the 3rd one. The first two methods might f
 </ul>
 </div>
 <div class="paragraph">
-<p><strong>Method 2: Using Gradle</strong></p>
+<p><strong>Method 2: Using <a href="#gradle">Gradle</a></strong></p>
 </div>
 <div class="ulist">
 <ul>
@@ -928,16 +928,16 @@ The most reliable way to run tests is the 3rd one. The first two methods might f
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-See <a href="UsingGradle.html">UsingGradle.adoc</a> for more info on how to run tests using Gradle.
+See <a href="UsingGradle.html">UsingGradle.adoc</a> for more info on how to run tests using <a href="#gradle">Gradle</a>.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p><strong>Method 3: Using Gradle (headless)</strong></p>
+<p><strong>Method 3: Using <a href="#gradle">Gradle</a> (headless)</strong></p>
 </div>
 <div class="paragraph">
-<p>Thanks to the <a href="https://github.com/TestFX/TestFX">TestFX</a> library we use, our GUI tests can be run in the <em>headless</em> mode. In the headless mode, GUI tests do not show up on the screen. That means the developer can do other things on the Computer while the tests are running.</p>
+<p>Thanks to the <a href="https://github.com/TestFX/TestFX">TestFX</a> library we use, our <a href="#gui">GUI</a> tests can be run in the <em>headless</em> mode. In the headless mode, GUI tests do not show up on the screen. That means the developer can do other things on the Computer while the tests are running.</p>
 </div>
 <div class="paragraph">
 <p>To run tests in headless mode, open a console and run the command <code>gradlew clean headless allTests</code> (Mac/Linux: <code>./gradlew clean headless allTests</code>)</p>
@@ -951,11 +951,11 @@ See <a href="UsingGradle.html">UsingGradle.adoc</a> for more info on how to run 
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p><strong>GUI Tests</strong> - These are tests involving the GUI. They include,</p>
+<p><strong><a href="#gui">GUI</a> Tests</strong> - These are tests involving the <a href="#gui">GUI</a>. They include,</p>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
-<p><em>System Tests</em> that test the entire App by simulating user actions on the GUI. These are in the <code>systemtests</code> package.</p>
+<p><em>System Tests</em> that test the entire App by simulating user actions on the <a href="#gui">GUI</a>. These are in the <code>systemtests</code> package.</p>
 </li>
 <li>
 <p><em>Unit tests</em> that test the individual components. These are in <code>seedu.address.ui</code> package.</p>
@@ -964,7 +964,7 @@ See <a href="UsingGradle.html">UsingGradle.adoc</a> for more info on how to run 
 </div>
 </li>
 <li>
-<p><strong>Non-GUI Tests</strong> - These are tests not involving the GUI. They include,</p>
+<p><strong>Non-<a href="#gui">GUI</a> Tests</strong> - These are tests not involving the <a href="#gui">GUI</a>. They include,</p>
 <div class="olist loweralpha">
 <ol class="loweralpha" type="a">
 <li>
@@ -996,7 +996,7 @@ e.g. <code>seedu.address.logic.LogicManagerTest</code></p>
 <p>Reason: One of its dependencies, <code>UserGuide.html</code> in <code>src/main/resources/docs</code> is missing.</p>
 </li>
 <li>
-<p>Solution: Execute Gradle task <code>processResources</code>.</p>
+<p>Solution: Execute <a href="#gradle">Gradle</a> task <code>processResources</code>.</p>
 </li>
 </ul>
 </div>
@@ -1009,7 +1009,7 @@ e.g. <code>seedu.address.logic.LogicManagerTest</code></p>
 <div class="sect2">
 <h3 id="build-automation"><a class="link" href="#build-automation">6.1. Build Automation</a></h3>
 <div class="paragraph">
-<p>See <a href="UsingGradle.html">UsingGradle.adoc</a> to learn how to use Gradle for build automation.</p>
+<p>See <a href="UsingGradle.html">UsingGradle.adoc</a> to learn how to use <a href="#gradle">Gradle</a> for build automation.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1043,7 +1043,7 @@ e.g. <code>seedu.address.logic.LogicManagerTest</code></p>
 <div class="sect2">
 <h3 id="managing-dependencies"><a class="link" href="#managing-dependencies">6.4. Managing Dependencies</a></h3>
 <div class="paragraph">
-<p>A project often depends on third-party libraries. For example, Address Book depends on the <a href="http://wiki.fasterxml.com/JacksonHome">Jackson library</a> for XML parsing. Managing these <em>dependencies</em> can be automated using Gradle. For example, Gradle can download the dependencies automatically, which is better than these alternatives.<br>
+<p>A project often depends on third-party libraries. For example, Address Book depends on the <a href="http://wiki.fasterxml.com/JacksonHome">Jackson library</a> for XML parsing. Managing these <em>dependencies</em> can be automated using <a href="#gradle">Gradle</a>. For example, <a href="#gradle">Gradle</a> can download the dependencies automatically, which is better than these alternatives.<br>
 a. Include those libraries in the repo (this bloats the repo size)<br>
 b. Require developers to download those libraries manually (this creates extra work for developers)</p>
 </div>
@@ -1151,10 +1151,10 @@ Do take a look at the <a href="#model-component">Design: Model Component</a> sec
 <div class="ulist">
 <ul>
 <li>
-<p>The <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/Model.java"><code>Model</code></a> API needs to be updated.</p>
+<p>The <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/Model.java"><code>Model</code></a> <a href="#api">API</a> needs to be updated.</p>
 </li>
 <li>
-<p>Find out which of the existing API methods in  <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/AddressBook.java"><code>AddressBook</code></a> and <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/person/Person.java"><code>Person</code></a> classes can be used to implement the tag removal logic. <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/AddressBook.java"><code>AddressBook</code></a> allows you to update a person, and <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/person/Person.java"><code>Person</code></a> allows you to update the tags.</p>
+<p>Find out which of the existing <a href="#api">API</a> methods in  <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/AddressBook.java"><code>AddressBook</code></a> and <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/person/Person.java"><code>Person</code></a> classes can be used to implement the tag removal logic. <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/AddressBook.java"><code>AddressBook</code></a> allows you to update a person, and <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/model/person/Person.java"><code>Person</code></a> allows you to update the tags.</p>
 </li>
 </ul>
 </div>
@@ -1187,7 +1187,7 @@ Do take a look at the <a href="#model-component">Design: Model Component</a> sec
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Do take a look at the <a href="#ui-component">Design: UI Component</a> section before attempting to modify the <code>UI</code> component.
+Do take a look at the <a href="#ui-component">Design: UI Component</a> section before attempting to modify the <code><a href="#ui">UI</a></code> component.
 </td>
 </tr>
 </table>
@@ -1384,7 +1384,7 @@ Do take a look at the <a href="#storage-component">Design: Storage Component</a>
 <div class="ulist">
 <ul>
 <li>
-<p>Add the API method in <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/storage/AddressBookStorage.java"><code>AddressBookStorage</code></a> interface.</p>
+<p>Add the <a href="#api">API</a> method in <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/storage/AddressBookStorage.java"><code>AddressBookStorage</code></a> interface.</p>
 </li>
 <li>
 <p>Implement the logic in <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/storage/StorageManager.java"><code>StorageManager</code></a> class.</p>
@@ -1511,7 +1511,7 @@ for <code>RemarkCommandParser</code>.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="step-3-ui-add-a-placeholder-for-remark-in-code-personcard-code"><a class="link" href="#step-3-ui-add-a-placeholder-for-remark-in-code-personcard-code">[Step 3] Ui: Add a placeholder for remark in <code>PersonCard</code></a></h5>
+<h5 id="step-3-a-href-ui-ui-a-add-a-placeholder-for-remark-in-code-personcard-code"><a class="link" href="#step-3-a-href-ui-ui-a-add-a-placeholder-for-remark-in-code-personcard-code">[Step 3] <a href="#ui">UI</a>: Add a placeholder for remark in <code>PersonCard</code></a></h5>
 <div class="paragraph">
 <p>Let&#8217;s add a placeholder on all our <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/ui/PersonCard.java"><code>PersonCard</code></a> s to display a remark for each person later.</p>
 </div>
@@ -1620,7 +1620,7 @@ for <code>RemarkCommandParser</code>.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="step-7-ui-connect-code-remark-code-field-to-code-personcard-code"><a class="link" href="#step-7-ui-connect-code-remark-code-field-to-code-personcard-code">[Step 7] Ui: Connect <code>Remark</code> field to <code>PersonCard</code></a></h5>
+<h5 id="step-7-a-href-ui-ui-a-connect-code-remark-code-field-to-code-personcard-code"><a class="link" href="#step-7-a-href-ui-ui-a-connect-code-remark-code-field-to-code-personcard-code">[Step 7] <a href="#ui">UI</a>: Connect <code>Remark</code> field to <code>PersonCard</code></a></h5>
 <div class="paragraph">
 <p>Our remark label in <a href="https://github.com/se-edu/addressbook-level4/tree/master/src/main/java/seedu/address/ui/PersonCard.java"><code>PersonCard</code></a> is still a placeholder. Let&#8217;s bring it to life by binding it with the actual <code>remark</code> field.</p>
 </div>
@@ -2409,6 +2409,78 @@ for <code>RemarkCommandParser</code>.</p>
 <pre>A contact detail that is not meant to be shared with others</pre>
 </div>
 </div>
+<div id="api" class="paragraph">
+<p>API</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>An application program interface (API) is code that allows two software programs to communicate with each other. The API defines the correct way for a developer to write a program that requests services from an operating system (OS) or other application. APIs are implemented by function calls composed of verbs and nouns. The required syntax is described in the documentation of the application being called.</pre>
+</div>
+</div>
+<div id="javaFX" class="paragraph">
+<p>JavaFX</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>JavaFX is a software platform for creating and delivering desktop applications, as well as rich internet applications (RIAs) that can run across a wide variety of devices. JavaFX is intended to replace Swing as the standard GUI library for Java SE, but both will be included for the foreseeable future.</pre>
+</div>
+</div>
+<div id="gradle" class="paragraph">
+<p>Gradle</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Gradle is a flexible general purpose build tool</pre>
+</div>
+</div>
+<div id="travis" class="paragraph">
+<p>Travis</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Travis CI is a hosted, distributed continuous integration service used to build and test projects hosted at GitHub. Travis CI automatically detects when a commit has been made and pushed to a GitHub repository that is using Travis CI, and each time this happens, it will try to build the project and run tests. This includes commits to all branches, not just to the master branch.</pre>
+</div>
+</div>
+<div id="gui" class="paragraph">
+<p>GUI</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>A graphical user interface (GUI) is a human-computer interface (i.e., a way for humans to interact with computers) that uses windows, icons and menus and which can be manipulated by a mouse (and often to a limited extent by a keyboard as well).</pre>
+</div>
+</div>
+<div id="ui" class="paragraph">
+<p>UI</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>The user interface (UI), in the industrial design field of human–computer interaction, is the space where interactions between humans and machines occur.</pre>
+</div>
+</div>
+<div id="activity-diagram" class="paragraph">
+<p>Activity diagram</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Activity diagram is basically a flowchart to represent the flow from one activity to another activity.</pre>
+</div>
+</div>
+<div id="class-diagram" class="paragraph">
+<p>Class diagram</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>In software engineering, a class diagram in the Unified Modeling Language (UML) is a type of static structure diagram that describes the structure of a system by showing the system's classes, their attributes, operations (or methods), and the relationships among objects.</pre>
+</div>
+</div>
+<div id="sequence-diagram" class="paragraph">
+<p>Sequence diagram</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>A sequence diagram is an interaction diagram that shows how objects operate with one another and in what order.</pre>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -2451,7 +2523,7 @@ for <code>RemarkCommandParser</code>.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2017-10-03 08:39:00 +00:00
+Last updated 2017-10-05 13:51:14 +00:00
 </div>
 </div>
 </body>
