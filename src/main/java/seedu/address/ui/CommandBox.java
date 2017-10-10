@@ -24,10 +24,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
-
-import seedu.address.commons.core.EventsCenter;
 import seedu.address.commons.core.LogsCenter;
-import seedu.address.commons.events.ui.ChangeFontSizeEvent;
 import seedu.address.commons.events.ui.NewResultAvailableEvent;
 import seedu.address.logic.ListElementPointer;
 import seedu.address.logic.Logic;
@@ -336,7 +333,6 @@ public class CommandBox extends UiPart<Region> {
     private void handleCommandInputChanged() {
         try {
             CommandResult commandResult = logic.execute(commandTextField.getText());
-            EventsCenter.getInstance().post(new ChangeFontSizeEvent(commandResult.feedbackToUser.toString()));
             setFontSize(commandResult.feedbackToUser);
             initHistory();
             historySnapshot.next();

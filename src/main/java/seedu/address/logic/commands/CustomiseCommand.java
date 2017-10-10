@@ -2,6 +2,8 @@ package seedu.address.logic.commands;
 
 import static seedu.address.logic.parser.CliSyntax.PREFIX_FONT_SIZE;
 
+import seedu.address.commons.core.EventsCenter;
+import seedu.address.commons.events.ui.ChangeFontSizeEvent;
 import seedu.address.model.font.FontSize;
 
 /**
@@ -29,20 +31,26 @@ public class CustomiseCommand extends UndoableCommand {
 
     @Override
     public CommandResult executeUndoableCommand() {
+
         switch (fontSize.value) {
         case FONT_SIZE_XSMALL:
+            EventsCenter.getInstance().post(new ChangeFontSizeEvent(MESSAGE_SUCCESS + FONT_SIZE_XSMALL + "."));
             return new CommandResult(MESSAGE_SUCCESS + FONT_SIZE_XSMALL + ".");
 
         case FONT_SIZE_SMALL:
+            EventsCenter.getInstance().post(new ChangeFontSizeEvent(MESSAGE_SUCCESS + FONT_SIZE_SMALL + "."));
             return new CommandResult(MESSAGE_SUCCESS + FONT_SIZE_SMALL + ".");
 
         case FONT_SIZE_NORMAL:
+            EventsCenter.getInstance().post(new ChangeFontSizeEvent(MESSAGE_SUCCESS + FONT_SIZE_NORMAL + "."));
             return new CommandResult(MESSAGE_SUCCESS + FONT_SIZE_NORMAL + ".");
 
         case FONT_SIZE_LARGE:
+            EventsCenter.getInstance().post(new ChangeFontSizeEvent(MESSAGE_SUCCESS + FONT_SIZE_LARGE + "."));
             return new CommandResult(MESSAGE_SUCCESS + FONT_SIZE_LARGE + ".");
 
         case FONT_SIZE_XLARGE:
+            EventsCenter.getInstance().post(new ChangeFontSizeEvent(MESSAGE_SUCCESS + FONT_SIZE_XLARGE + "."));
             return new CommandResult(MESSAGE_SUCCESS + FONT_SIZE_XLARGE + ".");
 
         default:
