@@ -38,7 +38,7 @@ public class CommandBox extends UiPart<Region> {
         // calls #setStyleToDefault() whenever there is a change to the text of the command box.
         commandTextField.textProperty().addListener((unused1, unused2, unused3) -> setStyleToDefault());
         String[] commands = {"help", "add", "list", "edit", "find",
-            "delete", "select", "history", "undo", "redo", "clear", "exit", "customise"};
+            "delete", "select", "history", "undo", "redo", "clear", "exit", "customise", "view"};
         TextFields.bindAutoCompletion(commandTextField, commands);
         historySnapshot = logic.getHistorySnapshot();
     }
