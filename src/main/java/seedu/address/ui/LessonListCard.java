@@ -111,7 +111,7 @@ public class LessonListCard extends UiPart<Region> {
         timeSlot.setVisible(false);
         classType.setVisible(false);
         lecturers.setVisible(false);
-        code.setStyle("-fx-font: 24 arial;");
+        code.setStyle("-fx-font: 24 monospace;");
     }
 
     /**
@@ -124,8 +124,7 @@ public class LessonListCard extends UiPart<Region> {
         timeSlot.setVisible(false);
         classType.setVisible(false);
         lecturers.setVisible(false);
-        venue.setStyle("-fx-font: 24 arial;");
-
+        venue.setStyle("-fx-font: 24 monospace;");
     }
 
     /**
