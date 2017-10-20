@@ -40,13 +40,13 @@ public class MainWindow extends UiPart<Region> {
     private Logic logic;
 
     // Independent Ui parts residing in this Ui container
-    private BrowserPanel browserPanel;
+    private Timetable timetable;
     private LessonListPanel lessonListPanel;
     private Config config;
     private UserPrefs prefs;
 
     @FXML
-    private StackPane browserPlaceholder;
+    private StackPane timetablePlaceholder;
 
     @FXML
     private StackPane commandBoxPlaceholder;
@@ -129,8 +129,8 @@ public class MainWindow extends UiPart<Region> {
      * Fills up all the placeholders of this window.
      */
     void fillInnerParts() {
-        browserPanel = new BrowserPanel();
-        browserPlaceholder.getChildren().add(browserPanel.getRoot());
+        timetable = new Timetable();
+        timetablePlaceholder.getChildren().add(timetable.getRoot());
 
         lessonListPanel = new LessonListPanel(logic.getFilteredLessonList());
         lessonListPanelPlaceholder.getChildren().add(lessonListPanel.getRoot());
@@ -209,10 +209,6 @@ public class MainWindow extends UiPart<Region> {
 
     public LessonListPanel getLessonListPanel() {
         return this.lessonListPanel;
-    }
-
-    void releaseResources() {
-        browserPanel.freeResources();
     }
 
     @Subscribe

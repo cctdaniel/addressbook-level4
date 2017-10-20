@@ -79,7 +79,7 @@
             </VBox.margin></StackPane>
     </VBox>
 
-    <StackPane fx:id="browserPlaceholder" prefWidth="340">
+    <StackPane fx:id="timetablePlaceholder" prefWidth="340">
       <padding>
         <Insets bottom="20.0" left="10.0" right="30.0" top="10.0" />
       </padding>
