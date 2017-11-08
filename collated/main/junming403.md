@@ -1,5 +1,141 @@
 # junming403
-###### \java\seedu\address\commons\events\ui\RefreshPanelEvent.java
+###### /java/seedu/address/ui/CommandBox.java
+``` java
+    /**
+     * Configure border colour to indicate validity of user input.
+     */
+    private void configBorderColor(String allTextInput) {
+        checkBox.setVisible(true);
+        try {
+            tester.parseCommand(allTextInput);
+            commandTextField.setStyle(userPrefFontSize + "-fx-border-color: green; -fx-border-width: 2");
+            checkBox.setGraphic(tick);
+            checkBox.toFront();
+            checkBox.setVisible(true);
+        } catch (ParseException e) {
+            commandTextField.setStyle(userPrefFontSize + "-fx-border-color: red; -fx-border-width: 2");
+            checkBox.setGraphic(cross);
+            checkBox.toFront();
+            checkBox.setVisible(true);
+        }
+    }
+```
+###### /java/seedu/address/ui/CombinePanel.java
+``` java
+    @Subscribe
+    private void handleRemarkChangedEvent(RemarkChangedEvent event) {
+        logger.info(LogsCenter.getEventHandlingLogMessage(event));
+        stickyNotesInit();
+    }
+
+    /**
+     * This method will initilize the data for sticky notes screen
+     */
+    public void noteDataInit() {
+        ObservableList<Remark> remarks = logic.getFilteredRemarkList();
+        int size = remarks.size();
+        int count = 0;
+        int index = 1;
+
+        noteData = new String[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (count >= size) {
+                    continue;
+                }
+                Remark remark = remarks.get(count);
+                if (count < size) {
+                    noteData[i][j] = index + "." + remark.moduleCode.fullCodeName + " : " + remark.value;
+                    index++;
+                    count++;
+                }
+            }
+        }
+    }
+```
+###### /java/seedu/address/ui/LessonListCard.java
+``` java
+    /**
+     * Change the card state to hide irrelevant information and only show address
+     */
+    private void switchToModuleCard() {
+        code.setVisible(true);
+        venue.setVisible(false);
+        group.setVisible(false);
+        timeSlot.setVisible(false);
+        classType.setVisible(false);
+        lecturers.setVisible(false);
+    }
+
+    /**
+     * Change the card state to hide irrelevant information and only show phone
+     */
+    private void switchToLocationCard() {
+        code.setVisible(false);
+        venue.setVisible(true);
+        group.setVisible(false);
+        timeSlot.setVisible(false);
+        classType.setVisible(false);
+        lecturers.setVisible(false);
+        bookmark.setVisible(false);
+
+    }
+
+
+    /**
+     * Change the card state to hide irrelevant information and only show lesson
+     */
+    private void switchToLessonCard() {
+        if (lesson.isMarked()) {
+            star.setFitWidth(30);
+            star.setFitHeight(30);
+            bookmark.setGraphic(star);
+            bookmark.setVisible(true);
+        }
+    }
+
+
+    /**
+     * Change the card state depending on the current listing unit
+     */
+    private void switchCard() {
+        switch (ListingUnit.getCurrentListingUnit()) {
+        case LOCATION:
+            switchToLocationCard();
+            break;
+
+        case MODULE:
+            switchToModuleCard();
+            break;
+
+        default:
+            switchToLessonCard();
+            break;
+        }
+    }
+```
+###### /java/seedu/address/ui/LessonListPanel.java
+``` java
+    private void setConnections(ObservableList<ReadOnlyLesson> infoList) {
+
+        ObservableList<LessonListCard> mappedList = EasyBind.map(
+                infoList, (person) -> new LessonListCard(person, infoList.indexOf(person) + 1));
+
+        lessonListView.setItems(mappedList);
+        lessonListView.setCellFactory(listView -> new LessonListViewCell());
+        setEventHandlerForSelectionChangeEvent();
+
+    }
+```
+###### /java/seedu/address/ui/LessonListPanel.java
+``` java
+    @Subscribe
+    private void handleRefreshPanelEvent(RefreshPanelEvent event) {
+        logger.info(LogsCenter.getEventHandlingLogMessage(event));
+        setConnections(lessonList);
+    }
+```
+###### /java/seedu/address/commons/events/ui/RefreshPanelEvent.java
 ``` java
 /**
  * Indicates the listingUnit in the personListPanel is changed.
@@ -13,7 +149,7 @@ public class RefreshPanelEvent extends BaseEvent {
 
 }
 ```
-###### \java\seedu\address\commons\events\ui\RemarkChangedEvent.java
+###### /java/seedu/address/commons/events/ui/RemarkChangedEvent.java
 ``` java
 /**
  * An event indicates addressbook has changed.
@@ -26,7 +162,7 @@ public class RemarkChangedEvent extends BaseEvent {
     }
 }
 ```
-###### \java\seedu\address\commons\events\ui\ViewedLessonEvent.java
+###### /java/seedu/address/commons/events/ui/ViewedLessonEvent.java
 ``` java
 /**
  * Indicates a request to view a lesson on the existing lesson list
@@ -39,99 +175,413 @@ public class ViewedLessonEvent extends BaseEvent {
     }
 }
 ```
-###### \java\seedu\address\logic\commands\AddCommand.java
+###### /java/seedu/address/logic/UndoRedoStack.java
 ``` java
-/**
- * Adds a lesson to the ModU.
- */
-public class AddCommand extends UndoableCommand {
+    public void push(Command command) {
+        if (!(command instanceof UndoCommand) && !(command instanceof RedoCommand)) {
+            redoStack.clear();
+        }
 
-    public static final String COMMAND_WORD = "add";
+        if (!(command instanceof UndoableCommand)) {
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Adds a lesson to the ModU. "
-            + "Parameters: "
-            + PREFIX_MODULE_CODE + "MODULE_CODE "
-            + PREFIX_CLASS_TYPE + "CLASS_TYPE "
-            + PREFIX_VENUE + "VENUE "
-            + PREFIX_GROUP + "GROUP "
-            + PREFIX_TIME_SLOT + "TIME_SLOT "
-            + PREFIX_LECTURER + "Lecturer\n"
-            + "Example: " + COMMAND_WORD + " "
-            + PREFIX_MODULE_CODE + "MA1101R "
-            + PREFIX_CLASS_TYPE + "LEC "
-            + PREFIX_VENUE + "LT27 "
-            + PREFIX_GROUP + "1 "
-            + PREFIX_TIME_SLOT + "FRI[1400-1600] "
-            + PREFIX_LECTURER + "Ma Siu Lun";
+            if ((command instanceof ListCommand) || (command instanceof ViewCommand)) {
+                undoStack.clear();
+            }
+            return;
+        }
 
-    public static final String MESSAGE_SUCCESS = "New lesson added: %1$s";
-    public static final String MESSAGE_DUPLICATE_LESSON = "This lesson already exists in the ModU";
-    public static final String MESSAGE_DUPLICATE_BOOKEDSLOT =
-            "This time slot have already been booked in this location";
-
-    private final Lesson toAdd;
+        undoStack.add((UndoableCommand) command);
+    }
 
     /**
-     * Creates an AddCommand to add the specified {@code ReadOnlyModule}
+     * Pops and returns the next {@code UndoableCommand} to be undone in the stack.
      */
-    public AddCommand(ReadOnlyLesson lesson) {
-        toAdd = new Lesson(lesson);
+    public UndoableCommand popUndo() {
+        UndoableCommand toUndo = undoStack.pop();
+        if (toUndo.canRedo()) {
+            redoStack.push(toUndo);
+        }
+        return toUndo;
+    }
+
+    /**
+     * Pops and returns the next {@code UndoableCommand} to be redone in the stack.
+     */
+    public UndoableCommand popRedo() {
+        UndoableCommand toRedo = redoStack.pop();
+        undoStack.push(toRedo);
+        return toRedo;
+    }
+```
+###### /java/seedu/address/logic/parser/RemarkCommandParser.java
+``` java
+/**
+ * Parses input arguments and creates a new RemarkCommand object
+ */
+public class RemarkCommandParser implements Parser<RemarkCommand> {
+
+    private static final Pattern DELETE_INDEX_PATTERN = Pattern.compile("-d\\s*(\\d+)");
+    private static final Pattern FIRST_INT_PATTERN = Pattern.compile("^(\\d+)");
+
+    /**
+     * Parses the given {@code String} of arguments in the context of the RemarkCommand
+     * and returns an RemarkCommand object for execution.
+     * @throws ParseException if the user input does not conform the expected format
+     */
+    @Override
+    public RemarkCommand parse(String args) throws ParseException {
+        requireNonNull(args);
+        String trimmedArgs = args.trim();
+        Index index;
+        String remarkContent;
+        Matcher matcherFirstInt = FIRST_INT_PATTERN.matcher(trimmedArgs);
+        Matcher matcherDeleteRmk = DELETE_INDEX_PATTERN.matcher(trimmedArgs);
+
+        try {
+
+            if (matcherDeleteRmk.find()) {
+                index = ParserUtil.parseIndex(matcherDeleteRmk.group(1));
+                return new RemarkCommand(index);
+            }
+
+            if (matcherFirstInt.find()) {
+                index = ParserUtil.parseIndex(matcherFirstInt.group(0));
+                remarkContent = trimmedArgs.substring(matcherFirstInt.group(0).length()).trim();
+                return new RemarkCommand(index, remarkContent);
+            } else {
+                throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, RemarkCommand.MESSAGE_USAGE));
+            }
+
+
+        } catch (IllegalValueException ive) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, RemarkCommand.MESSAGE_USAGE));
+        }
+
+    }
+}
+```
+###### /java/seedu/address/logic/parser/ListCommandParser.java
+``` java
+/**
+ * Parses input arguments and creates a new ListCommand object
+ */
+public class ListCommandParser implements Parser<ListCommand> {
+
+    /**
+     * Parses the given {@code String} of arguments in the context of the ListCommand
+     * and returns an ListCommand object for execution.
+     *
+     * @throws ParseException if the user input does not conform the expected format
+     */
+    public ListCommand parse(String args) throws ParseException {
+        String trimmedArgs = args.trim();
+
+        if (isValidAttribute(trimmedArgs)) {
+            return new ListCommand(trimmedArgs);
+        } else {
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, ListCommand.MESSAGE_USAGE));
+        }
+
+    }
+
+    private boolean isValidAttribute(String args) {
+        return args.equals(ListCommand.LOCATION_KEYWORD) || args.equals(ListCommand.MODULE_KEYWORD)
+                || args.equals(ListCommand.MARKED_LIST_KEYWORD);
+    }
+
+}
+```
+###### /java/seedu/address/logic/parser/ViewCommandParser.java
+``` java
+/**
+ * Parses input arguments and creates a new ViewCommand object
+ */
+public class ViewCommandParser implements Parser<ViewCommand> {
+
+    /**
+     * Parses the given {@code String} of arguments in the context of the ViewCommand
+     * and returns a ViewCommand object for execution.
+     * @throws ParseException if the user input does not conform the expected format
+     */
+    public ViewCommand parse(String args) throws ParseException {
+        try {
+            Index index = ParserUtil.parseIndex(args);
+            return new ViewCommand(index);
+        } catch (IllegalValueException ive) {
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, ViewCommand.MESSAGE_USAGE));
+        }
+    }
+}
+```
+###### /java/seedu/address/logic/parser/MarkCommandParser.java
+``` java
+/**
+ * Parses input arguments and creates a new MarkCommand object
+ */
+public class MarkCommandParser implements Parser<MarkCommand> {
+
+    /**
+     * Parses the given {@code String} of arguments in the context of the BookmarkCommand
+     * and returns an BookmarkCommand object for execution.
+     * @throws ParseException if the user input does not conform the expected format
+     */
+    public MarkCommand parse(String args) throws ParseException {
+        try {
+            Index index = ParserUtil.parseIndex(args);
+            return new MarkCommand(index);
+        } catch (IllegalValueException ive) {
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, MarkCommand.MESSAGE_USAGE));
+        }
+    }
+
+}
+```
+###### /java/seedu/address/logic/parser/UnmarkCommandParser.java
+``` java
+/**
+ * Parses input arguments and creates a new UnmarkCommand object
+ */
+public class UnmarkCommandParser implements Parser<UnmarkCommand> {
+
+    /**
+     * Parses the given {@code String} of arguments in the context of the UnBookmarkCommand
+     * and returns an UnBookmarkCommand object for execution.
+     * @throws ParseException if the user input does not conform the expected format
+     */
+    public UnmarkCommand parse(String args) throws ParseException {
+        try {
+            Index index = ParserUtil.parseIndex(args);
+            return new UnmarkCommand(index);
+        } catch (IllegalValueException ive) {
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, UnmarkCommand.MESSAGE_USAGE));
+        }
+    }
+
+}
+```
+###### /java/seedu/address/logic/parser/EditCommandParser.java
+``` java
+/**
+ * Parses input arguments and creates a new EditCommand object
+ */
+public class EditCommandParser implements Parser<EditCommand> {
+
+    private static final Pattern FIRST_INT_PATTERN = Pattern.compile("^(\\d+)");
+
+    /**
+     * Parses the given {@code String} of arguments in the context of the EditCommand
+     * and returns an EditCommand object for execution.
+     * @throws ParseException if the user input does not conform the expected format
+     */
+    @Override
+    public EditCommand parse(String args) throws ParseException {
+
+        if (ListingUnit.getCurrentListingUnit().equals(ListingUnit.LESSON)) {
+            return parseEditLesson(args);
+        } else {
+            return parseEditAttribute(args);
+        }
+    }
+
+    /**
+     * Parse the input arguments given the current listing unit is Lesson.
+     */
+    public EditCommand parseEditLesson(String args) throws ParseException {
+        requireNonNull(args);
+        ArgumentMultimap argMultimap =
+                ArgumentTokenizer.tokenize(args, PREFIX_CLASS_TYPE, PREFIX_VENUE, PREFIX_GROUP, PREFIX_TIME_SLOT,
+                        PREFIX_MODULE_CODE, PREFIX_LECTURER);
+
+        Index index;
+
+        try {
+            index = ParserUtil.parseIndex(argMultimap.getPreamble());
+        } catch (IllegalValueException ive) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE));
+        }
+
+        EditLessonDescriptor editLessonDescriptor = new EditLessonDescriptor();
+        try {
+            ParserUtil.parseClassType(argMultimap.getValue(PREFIX_CLASS_TYPE))
+                    .ifPresent(editLessonDescriptor::setClassType);
+            ParserUtil.parseLocation(argMultimap.getValue(PREFIX_VENUE))
+                    .ifPresent(editLessonDescriptor::setLocation);
+            ParserUtil.parseGroup(argMultimap.getValue(PREFIX_GROUP))
+                    .ifPresent(editLessonDescriptor::setGroup);
+            ParserUtil.parseTimeSlot(argMultimap.getValue(PREFIX_TIME_SLOT))
+                    .ifPresent(editLessonDescriptor::setTimeSlot);
+            ParserUtil.parseCode(argMultimap.getValue(PREFIX_MODULE_CODE))
+                    .ifPresent(editLessonDescriptor::setCode);
+
+            if (argMultimap.getValue(PREFIX_LECTURER).isPresent()
+                    && argMultimap.getValue(PREFIX_LECTURER).get().isEmpty()) {
+                throw new IllegalValueException(Lecturer.MESSAGE_LECTURER_CONSTRAINTS);
+            }
+
+            parseLecturersForEdit(argMultimap.getAllValues(PREFIX_LECTURER))
+                    .ifPresent(editLessonDescriptor::setLecturer);
+
+        } catch (IllegalValueException ive) {
+            throw new ParseException(ive.getMessage(), ive);
+        }
+
+        if (!editLessonDescriptor.isAnyFieldEdited()) {
+            throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);
+        }
+
+        return new EditCommand(index, editLessonDescriptor);
+    }
+
+    /**
+     * Parse the input arguments of given new attribute value
+     */
+    public EditCommand parseEditAttribute(String args) throws ParseException {
+        requireNonNull(args);
+        String trimmedArgs = args.trim();
+
+        Index index;
+        String attributeValue;
+        Matcher matcher = FIRST_INT_PATTERN.matcher(trimmedArgs);
+
+        try {
+            if (matcher.find()) {
+                index = ParserUtil.parseIndex(matcher.group(0));
+            } else {
+                throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE));
+            }
+
+            attributeValue = trimmedArgs.substring(matcher.group(0).length()).trim();
+
+        } catch (IllegalValueException ive) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE));
+        }
+
+        return new EditCommand(index, attributeValue);
+    }
+
+
+    /**
+     * Parses {@code Collection<String> tags} into a {@code Set<Lecturer>} if {@code lecturers} is non-empty.
+     * If {@code lecturer} contain only one element which is an empty string, it will be parsed into a
+     * {@code Set<Lecturer>} containing zero tags.
+     */
+    private Optional<Set<Lecturer>> parseLecturersForEdit(Collection<String> lecturers) throws IllegalValueException {
+        assert lecturers != null;
+
+        if (lecturers.isEmpty()) {
+            return Optional.empty();
+        }
+        Collection<String> lecturersSet = lecturers.size() == 1
+                && lecturers.contains("") ? Collections.emptySet() : lecturers;
+        return Optional.of(ParserUtil.parseLecturer(lecturersSet));
+    }
+
+}
+```
+###### /java/seedu/address/logic/commands/ViewCommand.java
+``` java
+/**
+ * Views all persons with the selected listing unit from the address book.
+ */
+public class ViewCommand extends Command {
+
+    public static final String COMMAND_WORD = "view";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD
+            + ": Views all lessons with the selected listing attribute from the address book.\n"
+            + "Parameters: INDEX (must be a positive integer)\n"
+            + "Example: " + COMMAND_WORD + " 1";
+
+    public static final String MESSAGE_VIEW_LESSON_SUCCESS = "Viewing lesson: %1$s";
+    public static final String MESSAGE_VIEW_LOCATION_SUCCESS = "lessons(s) founded with location %1$s";
+    public static final String MESSAGE_VIEW_MODULE_SUCCESS = "lessons(s) founded with module code %1$s";
+    private final Index targetIndex;
+
+    public ViewCommand(Index targetIndex) {
+        this.targetIndex = targetIndex;
     }
 
     @Override
-    public CommandResult executeUndoableCommand() throws CommandException {
-        requireNonNull(model);
-        try {
-            model.bookingSlot(new BookedSlot(toAdd.getLocation(), toAdd.getTimeSlot()));
-            model.addLesson(toAdd);
-            model.handleListingUnit();
-            EventsCenter.getInstance().post(new ViewedLessonEvent());
-            return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd));
-        } catch (DuplicateLessonException e) {
-            throw new CommandException(MESSAGE_DUPLICATE_LESSON);
-        } catch (DuplicateBookedSlotException s) {
-            throw new CommandException(MESSAGE_DUPLICATE_BOOKEDSLOT);
+    public CommandResult execute() throws CommandException {
+
+        List<ReadOnlyLesson> lastShownList = model.getFilteredLessonList();
+
+        if (targetIndex.getZeroBased() >= lastShownList.size()) {
+            throw new CommandException(Messages.MESSAGE_INVALID_DISPLAYED_INDEX);
         }
 
+        ReadOnlyLesson toView = lastShownList.get(targetIndex.getZeroBased());
+
+        setViewingPanelAttribute();
+        model.setCurrentViewingLesson(toView);
+
+        String resultMessage = updateFilterList(toView);
+
+        EventsCenter.getInstance().post(new RefreshPanelEvent());
+        EventsCenter.getInstance().post(new ViewedLessonEvent());
+        return new CommandResult(resultMessage);
+    }
+
+    /***
+     * Update the filterList that only returns lesson with the same location or module name
+     * base in the current listing unit
+     */
+    private String updateFilterList(ReadOnlyLesson toView) {
+
+        Predicate predicate;
+        String result;
+
+        switch (getCurrentListingUnit()) {
+
+        case LOCATION:
+            predicate = new FixedLocationPredicate(toView.getLocation());
+            result = String.format(MESSAGE_VIEW_LOCATION_SUCCESS, toView.getLocation());
+            break;
+
+        case MODULE:
+            predicate = new FixedCodePredicate(toView.getCode());
+            result = String.format(MESSAGE_VIEW_MODULE_SUCCESS, toView.getCode());
+            break;
+
+        default:
+            predicate = new ShowSpecifiedLessonPredicate(toView);
+            result = String.format(MESSAGE_VIEW_LESSON_SUCCESS, toView);
+            break;
+        }
+
+        ListingUnit.setCurrentPredicate(predicate);
+        ListingUnit.setCurrentListingUnit(LESSON);
+        model.updateFilteredLessonList(predicate);
+        return result;
+    }
+
+    public void setViewingPanelAttribute() {
+        switch (getCurrentListingUnit()) {
+        case MODULE:
+            model.setViewingPanelAttribute("module");
+            break;
+        case LOCATION:
+            model.setViewingPanelAttribute("location");
+            break;
+        default:
+            model.setViewingPanelAttribute("default");
+            break;
+        }
     }
 
     @Override
     public boolean equals(Object other) {
         return other == this // short circuit if same object
-                || (other instanceof AddCommand // instanceof handles nulls
-                && toAdd.equals(((AddCommand) other).toAdd));
-    }
-
-
-}
-```
-###### \java\seedu\address\logic\commands\ClearCommand.java
-``` java
-/**
- * Clears the ModU data.
- */
-public class ClearCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "clear";
-    public static final String MESSAGE_SUCCESS = "Address book has been cleared!";
-
-
-    @Override
-    public CommandResult executeUndoableCommand() {
-        requireNonNull(model);
-        Predicate predicate = new UniqueModuleCodePredicate(model.getUniqueCodeSet());
-        ListingUnit.setCurrentListingUnit(MODULE);
-        ListingUnit.setCurrentPredicate(predicate);
-        model.unbookAllSlot();
-        model.resetData(new AddressBook());
-        model.updateFilteredLessonList(predicate);
-        EventsCenter.getInstance().post(new ViewedLessonEvent());
-        EventsCenter.getInstance().post(new RemarkChangedEvent());
-        return new CommandResult(MESSAGE_SUCCESS);
+                || (other instanceof ViewCommand // instanceof handles nulls
+                && this.targetIndex.equals(((ViewCommand) other).targetIndex)); // state check
     }
 }
 ```
-###### \java\seedu\address\logic\commands\DeleteCommand.java
+###### /java/seedu/address/logic/commands/DeleteCommand.java
 ``` java
 /**
  * Deletes a lesson/location/module identified using it's last displayed index from ModU.
@@ -290,7 +740,430 @@ public class DeleteCommand extends UndoableCommand {
     }
 }
 ```
-###### \java\seedu\address\logic\commands\EditCommand.java
+###### /java/seedu/address/logic/commands/UnmarkCommand.java
+``` java
+/**
+ * Unbookmark a lesson identified using it's last displayed index from the address book into the favourite list.
+ */
+public class UnmarkCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "unmark";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD
+            + ": removes the lesson into marked list identified by the index number used in the last lesson listing.\n"
+            + "Parameters: INDEX (must be a positive integer)\n"
+            + "Example: " + COMMAND_WORD + " 1";
+
+    public static final String MESSAGE_UNBOOKMARK_LESSON_SUCCESS = "Unmarked Lesson:  %1$s";
+    public static final String MESSAGE_WRONG_LISTING_UNIT_FAILURE = "You can only remove lesson from marked list";
+
+    private final Index targetIndex;
+
+    public UnmarkCommand(Index targetIndex) {
+        this.targetIndex = targetIndex;
+    }
+
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+
+        List<ReadOnlyLesson> lastShownList = model.getFilteredLessonList();
+
+        if (targetIndex.getZeroBased() >= lastShownList.size()) {
+            throw new CommandException(Messages.MESSAGE_INVALID_DISPLAYED_INDEX);
+        }
+
+        ReadOnlyLesson lessonToCollect = lastShownList.get(targetIndex.getZeroBased());
+
+        if (ListingUnit.getCurrentListingUnit().equals(LESSON)) {
+            model.unBookmarkLesson(lessonToCollect);
+            if (ListingUnit.getCurrentPredicate() instanceof MarkedListPredicate) {
+                model.updateFilteredLessonList(new MarkedListPredicate());
+            }
+            EventsCenter.getInstance().post(new RefreshPanelEvent());
+            return new CommandResult(String.format(MESSAGE_UNBOOKMARK_LESSON_SUCCESS, lessonToCollect));
+        } else {
+            throw new CommandException(MESSAGE_WRONG_LISTING_UNIT_FAILURE);
+        }
+    }
+
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof UnmarkCommand // instanceof handles nulls
+                && this.targetIndex.equals(((UnmarkCommand) other).targetIndex)); // state check
+    }
+}
+```
+###### /java/seedu/address/logic/commands/ListCommand.java
+``` java
+/**
+ * Lists unique locations or unique module codes of all lessons according to user's specification.
+ */
+public class ListCommand extends Command {
+
+    public static final String COMMAND_WORD = "list";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": List all locations or all module codes and "
+            + "displays them as a list with index numbers.\n"
+            + "Parameters: module/location/marked\n"
+            + "Example: " + COMMAND_WORD + " module";
+
+    public static final String MESSAGE_SUCCESS = "Listed %1$s(s)";
+
+    public static final String MODULE_KEYWORD = "module";
+    public static final String LOCATION_KEYWORD = "location";
+    public static final String MARKED_LIST_KEYWORD = "marked";
+
+    private final String parameter;
+
+    public ListCommand(String attributeName) {
+        this.parameter = attributeName;
+    }
+
+    @Override
+    public CommandResult execute() {
+
+        switch (parameter) {
+        case MODULE_KEYWORD :
+            return executeListModule();
+        case LOCATION_KEYWORD:
+            return executeListLocation();
+        case MARKED_LIST_KEYWORD:
+            return executeListMarked();
+        default:
+            assert false : "There cannot be other parameters passed in";
+            return null;
+        }
+    }
+
+    /**
+     * execute list by module.
+     */
+    private CommandResult executeListModule() {
+        ListingUnit.setCurrentListingUnit(MODULE);
+        UniqueModuleCodePredicate codePredicate = new UniqueModuleCodePredicate(model.getUniqueCodeSet());
+        EventsCenter.getInstance().post(new ViewedLessonEvent());
+        ListingUnit.setCurrentPredicate(codePredicate);
+        return executeListByAttribute(codePredicate);
+    }
+
+    /**
+     * execute list by location.
+     */
+    private CommandResult executeListLocation() {
+        ListingUnit.setCurrentListingUnit(LOCATION);
+        UniqueLocationPredicate locationPredicate = new UniqueLocationPredicate(model.getUniqueLocationSet());
+        EventsCenter.getInstance().post(new ViewedLessonEvent());
+        ListingUnit.setCurrentPredicate(locationPredicate);
+        return executeListByAttribute(locationPredicate);
+    }
+
+    /**
+     * execute list all marked lessons.
+     */
+    private CommandResult executeListMarked() {
+        ListingUnit.setCurrentListingUnit(LESSON);
+        MarkedListPredicate markedListPredicate = new MarkedListPredicate();
+        model.setViewingPanelAttribute(MARKED_LIST_KEYWORD);
+        ListingUnit.setCurrentPredicate(markedListPredicate);
+        EventsCenter.getInstance().post(new ViewedLessonEvent());
+        return executeListByAttribute(markedListPredicate);
+    }
+
+    /**
+     * execute the list command with different attributes.
+     */
+    private CommandResult executeListByAttribute(Predicate predicate) {
+        model.updateFilteredLessonList(predicate);
+        if (predicate instanceof MarkedListPredicate) {
+            EventsCenter.getInstance().post(new ViewedLessonEvent());
+        }
+        EventsCenter.getInstance().post(new RefreshPanelEvent());
+        return new CommandResult(String.format(MESSAGE_SUCCESS, parameter));
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof ListCommand)) {
+            return false;
+        }
+
+        if (other == this) {
+            return true;
+        }
+
+        ListCommand o = (ListCommand) other;
+        if (parameter != null && o.parameter != null) {
+            return parameter.equals(o.parameter);
+        }
+
+        return false;
+    }
+}
+```
+###### /java/seedu/address/logic/commands/RedoCommand.java
+``` java
+/**
+ * Redo the previously undone command.
+ */
+public class RedoCommand extends Command {
+
+    public static final String COMMAND_WORD = "redo";
+    public static final String MESSAGE_SUCCESS = "Redo success!";
+    public static final String MESSAGE_FAILURE = "No more commands to redo!";
+
+    @Override
+    public CommandResult execute() throws CommandException {
+        requireAllNonNull(model, undoRedoStack);
+
+        if (!undoRedoStack.canRedo()) {
+            throw new CommandException(MESSAGE_FAILURE);
+        }
+
+        undoRedoStack.popRedo().redo();
+        return new CommandResult(MESSAGE_SUCCESS);
+    }
+
+    @Override
+    public void setData(Model model, CommandHistory commandHistory, UndoRedoStack undoRedoStack) {
+        this.model = model;
+        this.undoRedoStack = undoRedoStack;
+    }
+}
+```
+###### /java/seedu/address/logic/commands/ClearCommand.java
+``` java
+/**
+ * Clears the ModU data.
+ */
+public class ClearCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "clear";
+    public static final String MESSAGE_SUCCESS = "Address book has been cleared!";
+
+
+    @Override
+    public CommandResult executeUndoableCommand() {
+        requireNonNull(model);
+        Predicate predicate = new UniqueModuleCodePredicate(model.getUniqueCodeSet());
+        ListingUnit.setCurrentListingUnit(MODULE);
+        ListingUnit.setCurrentPredicate(predicate);
+        model.unbookAllSlot();
+        model.resetData(new AddressBook());
+        model.updateFilteredLessonList(predicate);
+        EventsCenter.getInstance().post(new ViewedLessonEvent());
+        EventsCenter.getInstance().post(new RemarkChangedEvent());
+        return new CommandResult(MESSAGE_SUCCESS);
+    }
+}
+```
+###### /java/seedu/address/logic/commands/AddCommand.java
+``` java
+/**
+ * Adds a lesson to the ModU.
+ */
+public class AddCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "add";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Adds a lesson to the ModU. "
+            + "Parameters: "
+            + PREFIX_MODULE_CODE + "MODULE_CODE "
+            + PREFIX_CLASS_TYPE + "CLASS_TYPE "
+            + PREFIX_VENUE + "VENUE "
+            + PREFIX_GROUP + "GROUP "
+            + PREFIX_TIME_SLOT + "TIME_SLOT "
+            + PREFIX_LECTURER + "Lecturer\n"
+            + "Example: " + COMMAND_WORD + " "
+            + PREFIX_MODULE_CODE + "MA1101R "
+            + PREFIX_CLASS_TYPE + "LEC "
+            + PREFIX_VENUE + "LT27 "
+            + PREFIX_GROUP + "1 "
+            + PREFIX_TIME_SLOT + "FRI[1400-1600] "
+            + PREFIX_LECTURER + "Ma Siu Lun";
+
+    public static final String MESSAGE_SUCCESS = "New lesson added: %1$s";
+    public static final String MESSAGE_DUPLICATE_LESSON = "This lesson already exists in the ModU";
+    public static final String MESSAGE_DUPLICATE_BOOKEDSLOT =
+            "This time slot have already been booked in this location";
+
+    private final Lesson toAdd;
+
+    /**
+     * Creates an AddCommand to add the specified {@code ReadOnlyModule}
+     */
+    public AddCommand(ReadOnlyLesson lesson) {
+        toAdd = new Lesson(lesson);
+    }
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+        requireNonNull(model);
+        try {
+            model.bookingSlot(new BookedSlot(toAdd.getLocation(), toAdd.getTimeSlot()));
+            model.addLesson(toAdd);
+            model.handleListingUnit();
+            EventsCenter.getInstance().post(new ViewedLessonEvent());
+            return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd));
+        } catch (DuplicateLessonException e) {
+            throw new CommandException(MESSAGE_DUPLICATE_LESSON);
+        } catch (DuplicateBookedSlotException s) {
+            throw new CommandException(MESSAGE_DUPLICATE_BOOKEDSLOT);
+        }
+
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof AddCommand // instanceof handles nulls
+                && toAdd.equals(((AddCommand) other).toAdd));
+    }
+
+
+}
+```
+###### /java/seedu/address/logic/commands/RemarkCommand.java
+``` java
+/**
+ * Add a remark to a module with specified index.
+ */
+public class RemarkCommand extends UndoableCommand {
+
+    public static final String COMMAND_WORD = "remark";
+    public static final String MESSAGE_SAMPLE_REMARK_INFORMATION = "The module CS2103T introduces the "
+            + "necessary conceptual and analytical tools for systematic and rigorous development of software systems.";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Remark the module with some supplementary "
+            + "information.\n "
+            + "Parameters: INDEX (must be a positive integer) "
+            + "[ADDITIONAL INFORMATION]...\n"
+            + "Example: " + COMMAND_WORD + " 1 "
+            + MESSAGE_SAMPLE_REMARK_INFORMATION + "\n"
+            + COMMAND_WORD + " -d: Delete the remark with specified index "
+            + "Parameters: INDEX (must be a positive integer)..\n"
+            + "Example: " + COMMAND_WORD + " -d 1 " + "\n";
+
+    public static final String MESSAGE_REMARK_MODULE_SUCCESS = "Remarked Module: %1$s";
+    public static final String MESSAGE_DELETE_REMARK_SUCCESS = "Deleted Remark: %1$s";
+    public static final String MESSAGE_WRONG_LISTING_UNIT_FAILURE = "You can only remark a module";
+
+    private final String remarkContent;
+    private final Index index;
+    private final boolean isDelete;
+
+    /**
+     * @param index       of the module in the module list to remark.
+     * @param content the new remark content.
+     */
+    public RemarkCommand(Index index, String content) {
+        requireNonNull(index);
+        requireNonNull(content);
+
+        this.remarkContent = content;
+        this.index = index;
+        this.isDelete = false;
+    }
+
+    /**
+     * @param index       of the remark in the remark list to delete.
+     */
+    public RemarkCommand(Index index) {
+        requireNonNull(index);
+
+        this.remarkContent = null;
+        this.index = index;
+        this.isDelete = true;
+    }
+
+
+
+    @Override
+    protected CommandResult executeUndoableCommand() throws CommandException {
+        if (isDelete) {
+            return executeDeleteRemark();
+        } else {
+            return executeAddRemark();
+        }
+    }
+
+    /**
+     * delete the remark with given index.
+     */
+    public CommandResult executeDeleteRemark() throws CommandException {
+        List<Remark> lastShownList = model.getFilteredRemarkList();
+
+        if (index.getZeroBased() >= lastShownList.size()) {
+            throw new CommandException(Messages.MESSAGE_INVALID_DISPLAYED_INDEX);
+        }
+
+        Remark remarkToDelete = lastShownList.get(index.getZeroBased());
+
+        if (ListingUnit.getCurrentListingUnit().equals(MODULE)) {
+            try {
+                model.deleteRemark(remarkToDelete);
+            } catch (RemarkNotFoundException e) {
+                throw new CommandException(e.getMessage());
+            }
+            EventsCenter.getInstance().post(new RemarkChangedEvent());
+            return new CommandResult(String.format(MESSAGE_DELETE_REMARK_SUCCESS, remarkToDelete));
+        } else {
+            throw new CommandException(MESSAGE_WRONG_LISTING_UNIT_FAILURE);
+        }
+    }
+
+    /**
+     * Adds in the remark.
+     */
+    public CommandResult executeAddRemark() throws CommandException {
+        List<ReadOnlyLesson> lastShownList = model.getFilteredLessonList();
+
+        if (index.getZeroBased() >= lastShownList.size()) {
+            throw new CommandException(Messages.MESSAGE_INVALID_DISPLAYED_INDEX);
+        }
+
+        ReadOnlyLesson moduleToRemark = lastShownList.get(index.getZeroBased());
+
+        if (ListingUnit.getCurrentListingUnit().equals(MODULE)) {
+            try {
+                Remark remark = new Remark(remarkContent, moduleToRemark.getCode());
+                model.addRemark(remark);
+            } catch (DuplicateRemarkException e) {
+                throw new CommandException(e.getMessage());
+            } catch (IllegalValueException e) {
+                throw new CommandException(e.getMessage());
+            }
+            EventsCenter.getInstance().post(new RemarkChangedEvent());
+            return new CommandResult(String.format(MESSAGE_REMARK_MODULE_SUCCESS, moduleToRemark.getCode()));
+        } else {
+            throw new CommandException(MESSAGE_WRONG_LISTING_UNIT_FAILURE);
+        }
+    }
+
+
+    @Override
+    public boolean equals(Object other) {
+
+        if (isDelete != ((RemarkCommand) other).isDelete) {
+            return false;
+        }
+
+        if (isDelete) {
+            return other == this // short circuit if same object
+                    || (other instanceof RemarkCommand // instanceof handles nulls
+                    && index.equals((((RemarkCommand) other).index)));
+        } else {
+            return other == this // short circuit if same object
+                    || (other instanceof RemarkCommand // instanceof handles nulls
+                    && remarkContent.equals(((RemarkCommand) other).remarkContent)
+                    && index.equals((((RemarkCommand) other).index)));
+        }
+    }
+}
+```
+###### /java/seedu/address/logic/commands/EditCommand.java
 ``` java
 
 /**
@@ -625,114 +1498,7 @@ public class EditCommand extends UndoableCommand {
     }
 }
 ```
-###### \java\seedu\address\logic\commands\ListCommand.java
-``` java
-/**
- * Lists unique locations or unique module codes of all lessons according to user's specification.
- */
-public class ListCommand extends Command {
-
-    public static final String COMMAND_WORD = "list";
-
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": List all locations or all module codes and "
-            + "displays them as a list with index numbers.\n"
-            + "Parameters: module/location/marked\n"
-            + "Example: " + COMMAND_WORD + " module";
-
-    public static final String MESSAGE_SUCCESS = "Listed %1$s(s)";
-
-    public static final String MODULE_KEYWORD = "module";
-    public static final String LOCATION_KEYWORD = "location";
-    public static final String MARKED_LIST_KEYWORD = "marked";
-
-    private final String parameter;
-
-    public ListCommand(String attributeName) {
-        this.parameter = attributeName;
-    }
-
-    @Override
-    public CommandResult execute() {
-
-        switch (parameter) {
-        case MODULE_KEYWORD :
-            return executeListModule();
-        case LOCATION_KEYWORD:
-            return executeListLocation();
-        case MARKED_LIST_KEYWORD:
-            return executeListMarked();
-        default:
-            assert false : "There cannot be other parameters passed in";
-            return null;
-        }
-    }
-
-    /**
-     * execute list by module.
-     */
-    private CommandResult executeListModule() {
-        ListingUnit.setCurrentListingUnit(MODULE);
-        UniqueModuleCodePredicate codePredicate = new UniqueModuleCodePredicate(model.getUniqueCodeSet());
-        EventsCenter.getInstance().post(new ViewedLessonEvent());
-        ListingUnit.setCurrentPredicate(codePredicate);
-        return executeListByAttribute(codePredicate);
-    }
-
-    /**
-     * execute list by location.
-     */
-    private CommandResult executeListLocation() {
-        ListingUnit.setCurrentListingUnit(LOCATION);
-        UniqueLocationPredicate locationPredicate = new UniqueLocationPredicate(model.getUniqueLocationSet());
-        EventsCenter.getInstance().post(new ViewedLessonEvent());
-        ListingUnit.setCurrentPredicate(locationPredicate);
-        return executeListByAttribute(locationPredicate);
-    }
-
-    /**
-     * execute list all marked lessons.
-     */
-    private CommandResult executeListMarked() {
-        ListingUnit.setCurrentListingUnit(LESSON);
-        MarkedListPredicate markedListPredicate = new MarkedListPredicate();
-        model.setViewingPanelAttribute(MARKED_LIST_KEYWORD);
-        ListingUnit.setCurrentPredicate(markedListPredicate);
-        EventsCenter.getInstance().post(new ViewedLessonEvent());
-        return executeListByAttribute(markedListPredicate);
-    }
-
-    /**
-     * execute the list command with different attributes.
-     */
-    private CommandResult executeListByAttribute(Predicate predicate) {
-        model.updateFilteredLessonList(predicate);
-        if (predicate instanceof MarkedListPredicate) {
-            EventsCenter.getInstance().post(new ViewedLessonEvent());
-        }
-        EventsCenter.getInstance().post(new RefreshPanelEvent());
-        return new CommandResult(String.format(MESSAGE_SUCCESS, parameter));
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof ListCommand)) {
-            return false;
-        }
-
-        if (other == this) {
-            return true;
-        }
-
-        ListCommand o = (ListCommand) other;
-        if (parameter != null && o.parameter != null) {
-            return parameter.equals(o.parameter);
-        }
-
-        return false;
-    }
-}
-```
-###### \java\seedu\address\logic\commands\MarkCommand.java
+###### /java/seedu/address/logic/commands/MarkCommand.java
 ``` java
 /**
  * Bookmark a lesson identified using it's last displayed index from the address book into the favourite list.
@@ -789,175 +1555,7 @@ public class MarkCommand extends UndoableCommand {
     }
 }
 ```
-###### \java\seedu\address\logic\commands\RedoCommand.java
-``` java
-/**
- * Redo the previously undone command.
- */
-public class RedoCommand extends Command {
-
-    public static final String COMMAND_WORD = "redo";
-    public static final String MESSAGE_SUCCESS = "Redo success!";
-    public static final String MESSAGE_FAILURE = "No more commands to redo!";
-
-    @Override
-    public CommandResult execute() throws CommandException {
-        requireAllNonNull(model, undoRedoStack);
-
-        if (!undoRedoStack.canRedo()) {
-            throw new CommandException(MESSAGE_FAILURE);
-        }
-
-        undoRedoStack.popRedo().redo();
-        return new CommandResult(MESSAGE_SUCCESS);
-    }
-
-    @Override
-    public void setData(Model model, CommandHistory commandHistory, UndoRedoStack undoRedoStack) {
-        this.model = model;
-        this.undoRedoStack = undoRedoStack;
-    }
-}
-```
-###### \java\seedu\address\logic\commands\RemarkCommand.java
-``` java
-/**
- * Add a remark to a module with specified index.
- */
-public class RemarkCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "remark";
-    public static final String MESSAGE_SAMPLE_REMARK_INFORMATION = "The module CS2103T introduces the "
-            + "necessary conceptual and analytical tools for systematic and rigorous development of software systems.";
-
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Remark the module with some supplementary "
-            + "information.\n "
-            + "Parameters: INDEX (must be a positive integer) "
-            + "[ADDITIONAL INFORMATION]...\n"
-            + "Example: " + COMMAND_WORD + " 1 "
-            + MESSAGE_SAMPLE_REMARK_INFORMATION + "\n"
-            + COMMAND_WORD + " -d: Delete the remark with specified index "
-            + "Parameters: INDEX (must be a positive integer)..\n"
-            + "Example: " + COMMAND_WORD + " -d 1 " + "\n";
-
-    public static final String MESSAGE_REMARK_MODULE_SUCCESS = "Remarked Module: %1$s";
-    public static final String MESSAGE_DELETE_REMARK_SUCCESS = "Deleted Remark: %1$s";
-    public static final String MESSAGE_WRONG_LISTING_UNIT_FAILURE = "You can only remark a module";
-
-    private final String remarkContent;
-    private final Index index;
-    private final boolean isDelete;
-
-    /**
-     * @param index       of the module in the module list to remark.
-     * @param content the new remark content.
-     */
-    public RemarkCommand(Index index, String content) {
-        requireNonNull(index);
-        requireNonNull(content);
-
-        this.remarkContent = content;
-        this.index = index;
-        this.isDelete = false;
-    }
-
-    /**
-     * @param index       of the remark in the remark list to delete.
-     */
-    public RemarkCommand(Index index) {
-        requireNonNull(index);
-
-        this.remarkContent = null;
-        this.index = index;
-        this.isDelete = true;
-    }
-
-
-
-    @Override
-    protected CommandResult executeUndoableCommand() throws CommandException {
-        if (isDelete) {
-            return executeDeleteRemark();
-        } else {
-            return executeAddRemark();
-        }
-    }
-
-    /**
-     * delete the remark with given index.
-     */
-    public CommandResult executeDeleteRemark() throws CommandException {
-        List<Remark> lastShownList = model.getFilteredRemarkList();
-
-        if (index.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_DISPLAYED_INDEX);
-        }
-
-        Remark remarkToDelete = lastShownList.get(index.getZeroBased());
-
-        if (ListingUnit.getCurrentListingUnit().equals(MODULE)) {
-            try {
-                model.deleteRemark(remarkToDelete);
-            } catch (RemarkNotFoundException e) {
-                throw new CommandException(e.getMessage());
-            }
-            EventsCenter.getInstance().post(new RemarkChangedEvent());
-            return new CommandResult(String.format(MESSAGE_DELETE_REMARK_SUCCESS, remarkToDelete));
-        } else {
-            throw new CommandException(MESSAGE_WRONG_LISTING_UNIT_FAILURE);
-        }
-    }
-
-    /**
-     * Adds in the remark.
-     */
-    public CommandResult executeAddRemark() throws CommandException {
-        List<ReadOnlyLesson> lastShownList = model.getFilteredLessonList();
-
-        if (index.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_DISPLAYED_INDEX);
-        }
-
-        ReadOnlyLesson moduleToRemark = lastShownList.get(index.getZeroBased());
-
-        if (ListingUnit.getCurrentListingUnit().equals(MODULE)) {
-            try {
-                Remark remark = new Remark(remarkContent, moduleToRemark.getCode());
-                model.addRemark(remark);
-            } catch (DuplicateRemarkException e) {
-                throw new CommandException(e.getMessage());
-            } catch (IllegalValueException e) {
-                throw new CommandException(e.getMessage());
-            }
-            EventsCenter.getInstance().post(new RemarkChangedEvent());
-            return new CommandResult(String.format(MESSAGE_REMARK_MODULE_SUCCESS, moduleToRemark.getCode()));
-        } else {
-            throw new CommandException(MESSAGE_WRONG_LISTING_UNIT_FAILURE);
-        }
-    }
-
-
-    @Override
-    public boolean equals(Object other) {
-
-        if (isDelete != ((RemarkCommand) other).isDelete) {
-            return false;
-        }
-
-        if (isDelete) {
-            return other == this // short circuit if same object
-                    || (other instanceof RemarkCommand // instanceof handles nulls
-                    && index.equals((((RemarkCommand) other).index)));
-        } else {
-            return other == this // short circuit if same object
-                    || (other instanceof RemarkCommand // instanceof handles nulls
-                    && remarkContent.equals(((RemarkCommand) other).remarkContent)
-                    && index.equals((((RemarkCommand) other).index)));
-        }
-    }
-}
-```
-###### \java\seedu\address\logic\commands\SelectCommand.java
+###### /java/seedu/address/logic/commands/SelectCommand.java
 ``` java
 /**
  * Selects a module/location identified using it's last displayed index from the address book.
@@ -1006,162 +1604,7 @@ public class SelectCommand extends Command {
     }
 }
 ```
-###### \java\seedu\address\logic\commands\UnmarkCommand.java
-``` java
-/**
- * Unbookmark a lesson identified using it's last displayed index from the address book into the favourite list.
- */
-public class UnmarkCommand extends UndoableCommand {
-
-    public static final String COMMAND_WORD = "unmark";
-
-    public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": removes the lesson into marked list identified by the index number used in the last lesson listing.\n"
-            + "Parameters: INDEX (must be a positive integer)\n"
-            + "Example: " + COMMAND_WORD + " 1";
-
-    public static final String MESSAGE_UNBOOKMARK_LESSON_SUCCESS = "Unmarked Lesson:  %1$s";
-    public static final String MESSAGE_WRONG_LISTING_UNIT_FAILURE = "You can only remove lesson from marked list";
-
-    private final Index targetIndex;
-
-    public UnmarkCommand(Index targetIndex) {
-        this.targetIndex = targetIndex;
-    }
-
-
-    @Override
-    public CommandResult executeUndoableCommand() throws CommandException {
-
-        List<ReadOnlyLesson> lastShownList = model.getFilteredLessonList();
-
-        if (targetIndex.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_DISPLAYED_INDEX);
-        }
-
-        ReadOnlyLesson lessonToCollect = lastShownList.get(targetIndex.getZeroBased());
-
-        if (ListingUnit.getCurrentListingUnit().equals(LESSON)) {
-            model.unBookmarkLesson(lessonToCollect);
-            if (ListingUnit.getCurrentPredicate() instanceof MarkedListPredicate) {
-                model.updateFilteredLessonList(new MarkedListPredicate());
-            }
-            EventsCenter.getInstance().post(new RefreshPanelEvent());
-            return new CommandResult(String.format(MESSAGE_UNBOOKMARK_LESSON_SUCCESS, lessonToCollect));
-        } else {
-            throw new CommandException(MESSAGE_WRONG_LISTING_UNIT_FAILURE);
-        }
-    }
-
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof UnmarkCommand // instanceof handles nulls
-                && this.targetIndex.equals(((UnmarkCommand) other).targetIndex)); // state check
-    }
-}
-```
-###### \java\seedu\address\logic\commands\ViewCommand.java
-``` java
-/**
- * Views all persons with the selected listing unit from the address book.
- */
-public class ViewCommand extends Command {
-
-    public static final String COMMAND_WORD = "view";
-
-    public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Views all lessons with the selected listing attribute from the address book.\n"
-            + "Parameters: INDEX (must be a positive integer)\n"
-            + "Example: " + COMMAND_WORD + " 1";
-
-    public static final String MESSAGE_VIEW_LESSON_SUCCESS = "Viewing lesson: %1$s";
-    public static final String MESSAGE_VIEW_LOCATION_SUCCESS = "lessons(s) founded with location %1$s";
-    public static final String MESSAGE_VIEW_MODULE_SUCCESS = "lessons(s) founded with module code %1$s";
-    private final Index targetIndex;
-
-    public ViewCommand(Index targetIndex) {
-        this.targetIndex = targetIndex;
-    }
-
-    @Override
-    public CommandResult execute() throws CommandException {
-
-        List<ReadOnlyLesson> lastShownList = model.getFilteredLessonList();
-
-        if (targetIndex.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_DISPLAYED_INDEX);
-        }
-
-        ReadOnlyLesson toView = lastShownList.get(targetIndex.getZeroBased());
-
-        setViewingPanelAttribute();
-        model.setCurrentViewingLesson(toView);
-
-        String resultMessage = updateFilterList(toView);
-
-        EventsCenter.getInstance().post(new RefreshPanelEvent());
-        EventsCenter.getInstance().post(new ViewedLessonEvent());
-        return new CommandResult(resultMessage);
-    }
-
-    /***
-     * Update the filterList that only returns lesson with the same location or module name
-     * base in the current listing unit
-     */
-    private String updateFilterList(ReadOnlyLesson toView) {
-
-        Predicate predicate;
-        String result;
-
-        switch (getCurrentListingUnit()) {
-
-        case LOCATION:
-            predicate = new FixedLocationPredicate(toView.getLocation());
-            result = String.format(MESSAGE_VIEW_LOCATION_SUCCESS, toView.getLocation());
-            break;
-
-        case MODULE:
-            predicate = new FixedCodePredicate(toView.getCode());
-            result = String.format(MESSAGE_VIEW_MODULE_SUCCESS, toView.getCode());
-            break;
-
-        default:
-            predicate = new ShowSpecifiedLessonPredicate(toView);
-            result = String.format(MESSAGE_VIEW_LESSON_SUCCESS, toView);
-            break;
-        }
-
-        ListingUnit.setCurrentPredicate(predicate);
-        ListingUnit.setCurrentListingUnit(LESSON);
-        model.updateFilteredLessonList(predicate);
-        return result;
-    }
-
-    public void setViewingPanelAttribute() {
-        switch (getCurrentListingUnit()) {
-        case MODULE:
-            model.setViewingPanelAttribute("module");
-            break;
-        case LOCATION:
-            model.setViewingPanelAttribute("location");
-            break;
-        default:
-            model.setViewingPanelAttribute("default");
-            break;
-        }
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof ViewCommand // instanceof handles nulls
-                && this.targetIndex.equals(((ViewCommand) other).targetIndex)); // state check
-    }
-}
-```
-###### \java\seedu\address\logic\LogicManager.java
+###### /java/seedu/address/logic/LogicManager.java
 ``` java
     @Override
     public ObservableList<Remark> getFilteredRemarkList() {
@@ -1173,823 +1616,48 @@ public class ViewCommand extends Command {
         model.updateFilteredRemarkList(predicate);
     }
 ```
-###### \java\seedu\address\logic\parser\EditCommandParser.java
+###### /java/seedu/address/storage/XmlAdaptedRemark.java
 ``` java
 /**
- * Parses input arguments and creates a new EditCommand object
+ * Stores remark data in an XML file
  */
-public class EditCommandParser implements Parser<EditCommand> {
+public class XmlAdaptedRemark {
 
-    private static final Pattern FIRST_INT_PATTERN = Pattern.compile("^(\\d+)");
+    @XmlElement(required = true)
+    private String content;
+
+    @XmlElement(required = true)
+    private String code;
 
     /**
-     * Parses the given {@code String} of arguments in the context of the EditCommand
-     * and returns an EditCommand object for execution.
-     * @throws ParseException if the user input does not conform the expected format
+     * Constructs an XmlAdaptedRemark.
+     * This is the no-arg constructor that is required by JAXB.
      */
-    @Override
-    public EditCommand parse(String args) throws ParseException {
-
-        if (ListingUnit.getCurrentListingUnit().equals(ListingUnit.LESSON)) {
-            return parseEditLesson(args);
-        } else {
-            return parseEditAttribute(args);
-        }
-    }
+    public XmlAdaptedRemark() {}
 
     /**
-     * Parse the input arguments given the current listing unit is Lesson.
-     */
-    public EditCommand parseEditLesson(String args) throws ParseException {
-        requireNonNull(args);
-        ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_CLASS_TYPE, PREFIX_VENUE, PREFIX_GROUP, PREFIX_TIME_SLOT,
-                        PREFIX_MODULE_CODE, PREFIX_LECTURER);
-
-        Index index;
-
-        try {
-            index = ParserUtil.parseIndex(argMultimap.getPreamble());
-        } catch (IllegalValueException ive) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE));
-        }
-
-        EditLessonDescriptor editLessonDescriptor = new EditLessonDescriptor();
-        try {
-            ParserUtil.parseClassType(argMultimap.getValue(PREFIX_CLASS_TYPE))
-                    .ifPresent(editLessonDescriptor::setClassType);
-            ParserUtil.parseLocation(argMultimap.getValue(PREFIX_VENUE))
-                    .ifPresent(editLessonDescriptor::setLocation);
-            ParserUtil.parseGroup(argMultimap.getValue(PREFIX_GROUP))
-                    .ifPresent(editLessonDescriptor::setGroup);
-            ParserUtil.parseTimeSlot(argMultimap.getValue(PREFIX_TIME_SLOT))
-                    .ifPresent(editLessonDescriptor::setTimeSlot);
-            ParserUtil.parseCode(argMultimap.getValue(PREFIX_MODULE_CODE))
-                    .ifPresent(editLessonDescriptor::setCode);
-
-            if (argMultimap.getValue(PREFIX_LECTURER).isPresent()
-                    && argMultimap.getValue(PREFIX_LECTURER).get().isEmpty()) {
-                throw new IllegalValueException(Lecturer.MESSAGE_LECTURER_CONSTRAINTS);
-            }
-
-            parseLecturersForEdit(argMultimap.getAllValues(PREFIX_LECTURER))
-                    .ifPresent(editLessonDescriptor::setLecturer);
-
-        } catch (IllegalValueException ive) {
-            throw new ParseException(ive.getMessage(), ive);
-        }
-
-        if (!editLessonDescriptor.isAnyFieldEdited()) {
-            throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);
-        }
-
-        return new EditCommand(index, editLessonDescriptor);
-    }
-
-    /**
-     * Parse the input arguments of given new attribute value
-     */
-    public EditCommand parseEditAttribute(String args) throws ParseException {
-        requireNonNull(args);
-        String trimmedArgs = args.trim();
-
-        Index index;
-        String attributeValue;
-        Matcher matcher = FIRST_INT_PATTERN.matcher(trimmedArgs);
-
-        try {
-            if (matcher.find()) {
-                index = ParserUtil.parseIndex(matcher.group(0));
-            } else {
-                throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE));
-            }
-
-            attributeValue = trimmedArgs.substring(matcher.group(0).length()).trim();
-
-        } catch (IllegalValueException ive) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE));
-        }
-
-        return new EditCommand(index, attributeValue);
-    }
-
-
-    /**
-     * Parses {@code Collection<String> tags} into a {@code Set<Lecturer>} if {@code lecturers} is non-empty.
-     * If {@code lecturer} contain only one element which is an empty string, it will be parsed into a
-     * {@code Set<Lecturer>} containing zero tags.
-     */
-    private Optional<Set<Lecturer>> parseLecturersForEdit(Collection<String> lecturers) throws IllegalValueException {
-        assert lecturers != null;
-
-        if (lecturers.isEmpty()) {
-            return Optional.empty();
-        }
-        Collection<String> lecturersSet = lecturers.size() == 1
-                && lecturers.contains("") ? Collections.emptySet() : lecturers;
-        return Optional.of(ParserUtil.parseLecturer(lecturersSet));
-    }
-
-}
-```
-###### \java\seedu\address\logic\parser\ListCommandParser.java
-``` java
-/**
- * Parses input arguments and creates a new ListCommand object
- */
-public class ListCommandParser implements Parser<ListCommand> {
-
-    /**
-     * Parses the given {@code String} of arguments in the context of the ListCommand
-     * and returns an ListCommand object for execution.
+     * Converts a given Remark into this class for JAXB use.
      *
-     * @throws ParseException if the user input does not conform the expected format
+     * @param source future changes to this will not affect the created
      */
-    public ListCommand parse(String args) throws ParseException {
-        String trimmedArgs = args.trim();
-
-        if (isValidAttribute(trimmedArgs)) {
-            return new ListCommand(trimmedArgs);
-        } else {
-            throw new ParseException(
-                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, ListCommand.MESSAGE_USAGE));
-        }
-
-    }
-
-    private boolean isValidAttribute(String args) {
-        return args.equals(ListCommand.LOCATION_KEYWORD) || args.equals(ListCommand.MODULE_KEYWORD)
-                || args.equals(ListCommand.MARKED_LIST_KEYWORD);
-    }
-
-}
-```
-###### \java\seedu\address\logic\parser\MarkCommandParser.java
-``` java
-/**
- * Parses input arguments and creates a new MarkCommand object
- */
-public class MarkCommandParser implements Parser<MarkCommand> {
-
-    /**
-     * Parses the given {@code String} of arguments in the context of the BookmarkCommand
-     * and returns an BookmarkCommand object for execution.
-     * @throws ParseException if the user input does not conform the expected format
-     */
-    public MarkCommand parse(String args) throws ParseException {
-        try {
-            Index index = ParserUtil.parseIndex(args);
-            return new MarkCommand(index);
-        } catch (IllegalValueException ive) {
-            throw new ParseException(
-                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, MarkCommand.MESSAGE_USAGE));
-        }
-    }
-
-}
-```
-###### \java\seedu\address\logic\parser\RemarkCommandParser.java
-``` java
-/**
- * Parses input arguments and creates a new RemarkCommand object
- */
-public class RemarkCommandParser implements Parser<RemarkCommand> {
-
-    private static final Pattern DELETE_INDEX_PATTERN = Pattern.compile("-d\\s*(\\d+)");
-    private static final Pattern FIRST_INT_PATTERN = Pattern.compile("^(\\d+)");
-
-    /**
-     * Parses the given {@code String} of arguments in the context of the RemarkCommand
-     * and returns an RemarkCommand object for execution.
-     * @throws ParseException if the user input does not conform the expected format
-     */
-    @Override
-    public RemarkCommand parse(String args) throws ParseException {
-        requireNonNull(args);
-        String trimmedArgs = args.trim();
-        Index index;
-        String remarkContent;
-        Matcher matcherFirstInt = FIRST_INT_PATTERN.matcher(trimmedArgs);
-        Matcher matcherDeleteRmk = DELETE_INDEX_PATTERN.matcher(trimmedArgs);
-
-        try {
-
-            if (matcherDeleteRmk.find()) {
-                index = ParserUtil.parseIndex(matcherDeleteRmk.group(1));
-                return new RemarkCommand(index);
-            }
-
-            if (matcherFirstInt.find()) {
-                index = ParserUtil.parseIndex(matcherFirstInt.group(0));
-                remarkContent = trimmedArgs.substring(matcherFirstInt.group(0).length()).trim();
-                return new RemarkCommand(index, remarkContent);
-            } else {
-                throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, RemarkCommand.MESSAGE_USAGE));
-            }
-
-
-        } catch (IllegalValueException ive) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, RemarkCommand.MESSAGE_USAGE));
-        }
-
-    }
-}
-```
-###### \java\seedu\address\logic\parser\UnmarkCommandParser.java
-``` java
-/**
- * Parses input arguments and creates a new UnmarkCommand object
- */
-public class UnmarkCommandParser implements Parser<UnmarkCommand> {
-
-    /**
-     * Parses the given {@code String} of arguments in the context of the UnBookmarkCommand
-     * and returns an UnBookmarkCommand object for execution.
-     * @throws ParseException if the user input does not conform the expected format
-     */
-    public UnmarkCommand parse(String args) throws ParseException {
-        try {
-            Index index = ParserUtil.parseIndex(args);
-            return new UnmarkCommand(index);
-        } catch (IllegalValueException ive) {
-            throw new ParseException(
-                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, UnmarkCommand.MESSAGE_USAGE));
-        }
-    }
-
-}
-```
-###### \java\seedu\address\logic\parser\ViewCommandParser.java
-``` java
-/**
- * Parses input arguments and creates a new ViewCommand object
- */
-public class ViewCommandParser implements Parser<ViewCommand> {
-
-    /**
-     * Parses the given {@code String} of arguments in the context of the ViewCommand
-     * and returns a ViewCommand object for execution.
-     * @throws ParseException if the user input does not conform the expected format
-     */
-    public ViewCommand parse(String args) throws ParseException {
-        try {
-            Index index = ParserUtil.parseIndex(args);
-            return new ViewCommand(index);
-        } catch (IllegalValueException ive) {
-            throw new ParseException(
-                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, ViewCommand.MESSAGE_USAGE));
-        }
-    }
-}
-```
-###### \java\seedu\address\logic\UndoRedoStack.java
-``` java
-    public void push(Command command) {
-        if (!(command instanceof UndoCommand) && !(command instanceof RedoCommand)) {
-            redoStack.clear();
-        }
-
-        if (!(command instanceof UndoableCommand)) {
-
-            if ((command instanceof ListCommand) || (command instanceof ViewCommand)) {
-                undoStack.clear();
-            }
-            return;
-        }
-
-        undoStack.add((UndoableCommand) command);
+    public XmlAdaptedRemark(Remark source) {
+        content = source.value;
+        code = source.moduleCode.fullCodeName;
     }
 
     /**
-     * Pops and returns the next {@code UndoableCommand} to be undone in the stack.
-     */
-    public UndoableCommand popUndo() {
-        UndoableCommand toUndo = undoStack.pop();
-        if (toUndo.canRedo()) {
-            redoStack.push(toUndo);
-        }
-        return toUndo;
-    }
-
-    /**
-     * Pops and returns the next {@code UndoableCommand} to be redone in the stack.
-     */
-    public UndoableCommand popRedo() {
-        UndoableCommand toRedo = redoStack.pop();
-        undoStack.push(toRedo);
-        return toRedo;
-    }
-```
-###### \java\seedu\address\model\AddressBook.java
-``` java
-    public void setRemarks(Set<Remark> remarks) {
-        this.remarks.setRemarks(remarks);
-    }
-```
-###### \java\seedu\address\model\AddressBook.java
-``` java
-    /**
-     * Adds a lesson to the marked list.
-     * Only person exists in the ModU can be added into the marked list.
+     * Converts this jaxb-friendly adapted tag object into the model's Remark object.
      *
-     * @throws DuplicateLessonException if an equivalent lesson already exists.
+     * @throws IllegalValueException if there were any data constraints violated in the adapted Remark
      */
-    public void bookmarkLesson(ReadOnlyLesson m) throws DuplicateLessonException {
-        if (m.isMarked()) {
-            throw new DuplicateLessonException();
-        } else {
-            m.setAsMarked();
-        }
-    }
-
-    /**
-     * Removes a lesson from the marked list.
-     * Only person exists in the marked List can be unbookmarked from the marked list.
-     */
-    public void unBookmarkLesson(ReadOnlyLesson m) {
-        m.setAsUnmarked();
-    }
-```
-###### \java\seedu\address\model\AddressBook.java
-``` java
-    //// remark-level operations
-    public void addRemark(Remark r) throws DuplicateRemarkException {
-        remarks.add(r);
-    }
-
-    public void updateRemark(Remark target, Remark editedRemark) throws
-            DuplicateRemarkException, RemarkNotFoundException {
-        remarks.setRemark(target, editedRemark);
-    }
-
-    /**
-     * Removes {@code key} from this {@code AddressBook}.
-     * @throws RemarkNotFoundException if the {@code key} is not in this {@code AddressBook}.
-     */
-    public boolean removeRemark(Remark key) throws RemarkNotFoundException {
-        if (remarks.remove(key)) {
-            return true;
-        } else {
-            throw new RemarkNotFoundException();
-        }
-    }
-```
-###### \java\seedu\address\model\AddressBook.java
-``` java
-    @Override
-    public ObservableList<Remark> getRemarkList() {
-        return remarks.asObservableList();
-    }
-```
-###### \java\seedu\address\model\lecturer\Lecturer.java
-``` java
-public class Lecturer {
-
-    public static final String MESSAGE_LECTURER_CONSTRAINTS = "Lecturer names should be alphabetic";
-    public static final String LECTURER_VALIDATION_REGEX = "[^\\s].*";
-
-    public final String lecturerName;
-
-    /**
-     * Validates given Lecturer name.
-     *
-     * @throws IllegalValueException if the given lecturer name string is invalid.
-     */
-    public Lecturer(String name) throws IllegalValueException {
-        requireNonNull(name);
-        String trimmedName = name.trim();
-        if (!isValidLecturerName(trimmedName)) {
-            throw new IllegalValueException(MESSAGE_LECTURER_CONSTRAINTS);
-        }
-        this.lecturerName = trimmedName;
-    }
-
-    /**
-     * Returns true if a given string is a valid Lecturer name.
-     */
-    public static boolean isValidLecturerName(String test) {
-        return test.matches(LECTURER_VALIDATION_REGEX) && !test.isEmpty();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof Lecturer // instanceof handles nulls
-                && this.lecturerName.equals(((Lecturer) other).lecturerName)); // state check
-    }
-
-    @Override
-    public int hashCode() {
-        return lecturerName.hashCode();
-    }
-
-    /**
-     * Format state as text for viewing.
-     */
-    public String toString() {
-        return '[' + lecturerName + ']';
+    public Remark toModelType() throws IllegalValueException {
+        final Code code = new Code(this.code);
+        return new Remark(content, code);
     }
 
 }
 ```
-###### \java\seedu\address\model\lecturer\UniqueLecturerList.java
-``` java
-public class UniqueLecturerList implements Iterable<Lecturer> {
-
-    private final ObservableList<Lecturer> internalList = FXCollections.observableArrayList();
-
-    /**
-     * Constructs empty LecturerList.
-     */
-    public UniqueLecturerList() {}
-
-    /**
-     * Creates a UniqueLecturerList using given lecturers.
-     * Enforces no nulls.
-     */
-    public UniqueLecturerList(Set<Lecturer> lecturers) {
-        requireAllNonNull(lecturers);
-        internalList.addAll(lecturers);
-
-        assert CollectionUtil.elementsAreUnique(internalList);
-    }
-
-    /**
-     * Returns all lecturers in this list as a Set.
-     * This set is mutable and change-insulated against the internal list.
-     */
-    public Set<Lecturer> toSet() {
-        assert CollectionUtil.elementsAreUnique(internalList);
-        return new HashSet<>(internalList);
-    }
-
-    /**
-     * Replaces the lecturers in this list with those in the argument Lecturer list.
-     */
-    public void setLectuers(Set<Lecturer> lectuers) {
-        requireAllNonNull(lectuers);
-        internalList.setAll(lectuers);
-        assert CollectionUtil.elementsAreUnique(internalList);
-    }
-
-    /**
-     * Ensures every Lecturer in the argument list exists in this object.
-     */
-    public void mergeFrom(UniqueLecturerList from) {
-        final Set<Lecturer> alreadyInside = this.toSet();
-        from.internalList.stream()
-                .filter(lecturer -> !alreadyInside.contains(lecturer))
-                .forEach(internalList::add);
-
-        assert CollectionUtil.elementsAreUnique(internalList);
-    }
-
-    /**
-     * Returns true if the list contains an equivalent Lecturer as the given argument.
-     */
-    public boolean contains(Lecturer toCheck) {
-        requireNonNull(toCheck);
-        return internalList.contains(toCheck);
-    }
-
-    /**
-     * Adds a Lecturer to the list.
-     *
-     * @throws DuplicateLecturerException if the Lecturer to add is a duplicate of an existing Lecturer in the list.
-     */
-    public void add(Lecturer toAdd) throws DuplicateLecturerException {
-        requireNonNull(toAdd);
-        if (contains(toAdd)) {
-            throw new DuplicateLecturerException();
-        }
-        internalList.add(toAdd);
-
-        assert CollectionUtil.elementsAreUnique(internalList);
-    }
-
-    @Override
-    public Iterator<Lecturer> iterator() {
-        assert CollectionUtil.elementsAreUnique(internalList);
-        return internalList.iterator();
-    }
-
-    /**
-     * Returns the backing list as an unmodifiable {@code ObservableList}.
-     */
-    public ObservableList<Lecturer> asObservableList() {
-        assert CollectionUtil.elementsAreUnique(internalList);
-        return FXCollections.unmodifiableObservableList(internalList);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        assert CollectionUtil.elementsAreUnique(internalList);
-        return other == this // short circuit if same object
-                || (other instanceof UniqueLecturerList // instanceof handles nulls
-                        && this.internalList.equals(((UniqueLecturerList) other).internalList));
-    }
-
-    /**
-     * Returns true if the element in this list is equal to the elements in {@code other}.
-     * The elements do not have to be in the same order.
-     */
-    public boolean equalsOrderInsensitive(UniqueLecturerList other) {
-        assert CollectionUtil.elementsAreUnique(internalList);
-        assert CollectionUtil.elementsAreUnique(other.internalList);
-        return this == other || new HashSet<>(this.internalList).equals(new HashSet<>(other.internalList));
-    }
-
-    @Override
-    public int hashCode() {
-        assert CollectionUtil.elementsAreUnique(internalList);
-        return internalList.hashCode();
-    }
-
-    /**
-     * Signals that an operation would have violated the 'no duplicates' property of the list.
-     */
-    public static class DuplicateLecturerException extends DuplicateDataException {
-        protected DuplicateLecturerException() {
-            super("Operation would result in duplicate lecturers");
-        }
-    }
-
-}
-```
-###### \java\seedu\address\model\ListingUnit.java
-``` java
-/**
- * A Enumeration class that consists of all possible Listing
- * Unit in the panel.
- */
-public enum ListingUnit {
-    MODULE, LOCATION, LESSON;
-
-    private static ListingUnit currentListingUnit = MODULE;
-    private static Predicate currentPredicate;
-
-    /**
-     * Get current Listing unit
-     */
-    public static ListingUnit getCurrentListingUnit() {
-        return currentListingUnit;
-    }
-
-    /**
-     * Reset listing unit in the panel with the new ListingUnit and set previous listing unit
-     */
-    public static void setCurrentListingUnit(ListingUnit unit) {
-        currentListingUnit = unit;
-    }
-
-    /**
-     * Get current predicate
-     */
-    public static Predicate getCurrentPredicate() {
-        return currentPredicate;
-    }
-
-    /**
-     * Set current predicate
-     */
-    public static void setCurrentPredicate(Predicate predicate) {
-        currentPredicate = predicate;
-    }
-
-}
-```
-###### \java\seedu\address\model\Model.java
-``` java
-    /**
-     * Get a hash set of all the distinct locations
-     */
-    HashSet<Location> getUniqueLocationSet();
-
-    /**
-     * Get a hash set of all the distinct module codes
-     */
-    HashSet<Code> getUniqueCodeSet();
-```
-###### \java\seedu\address\model\Model.java
-``` java
-    /**
-     * Updates the filter of the filtered remark list to filter by the given {@code predicate}.
-     *
-     * @throws NullPointerException if {@code predicate} is null.
-     */
-    void updateFilteredRemarkList(Predicate<Remark> predicate);
-
-    /**
-     * Adds the given remark.
-     * @throws DuplicateRemarkException
-     */
-    void addRemark(Remark r) throws DuplicateRemarkException;
-
-    /**
-     * Deletes the given remark.
-     */
-    void deleteRemark(Remark target) throws RemarkNotFoundException;
-
-    /**
-     * Update the given remark.
-     * @throws DuplicateRemarkException
-     * @throws RemarkNotFoundException
-     */
-    void updateRemark(Remark target, Remark editedRemark) throws DuplicateRemarkException, RemarkNotFoundException;
-
-    /**
-     * handle different ListingUnit after redo and undo
-     */
-    void handleListingUnit();
-```
-###### \java\seedu\address\model\ModelManager.java
-``` java
-    @Override
-    public HashSet<Location> getUniqueLocationSet() {
-        HashSet<Location> set = new HashSet<>();
-
-        ObservableList<ReadOnlyLesson> lessonLst = getFilteredLessonList();
-        updateFilteredLessonList(PREDICATE_SHOW_ALL_LESSONS);
-        for (ReadOnlyLesson l : lessonLst) {
-            if (!set.contains(l.getLocation())) {
-                set.add(l.getLocation());
-            }
-        }
-        return set;
-    }
-
-    @Override
-    public HashSet<Code> getUniqueCodeSet() {
-        HashSet<Code> set = new HashSet<>();
-
-        ObservableList<ReadOnlyLesson> lessonLst = getFilteredLessonList();
-        updateFilteredLessonList(PREDICATE_SHOW_ALL_LESSONS);
-        for (ReadOnlyLesson l : lessonLst) {
-            if (!set.contains(l.getCode())) {
-                set.add(l.getCode());
-            }
-        }
-        return set;
-    }
-```
-###### \java\seedu\address\model\ModelManager.java
-``` java
-    @Override
-    public void bookmarkLesson(ReadOnlyLesson target) throws DuplicateLessonException {
-        addressBook.bookmarkLesson(target);
-        indicateAddressBookChanged();
-    }
-
-    @Override
-    public void unBookmarkLesson(ReadOnlyLesson target) {
-        addressBook.unBookmarkLesson(target);
-        indicateAddressBookChanged();
-    }
-```
-###### \java\seedu\address\model\ModelManager.java
-``` java
-    @Override
-    public void updateFilteredRemarkList(Predicate<Remark> predicate) {
-        requireNonNull(predicate);
-        filteredRemarks.setPredicate(predicate);
-    }
-
-    @Override
-    public void addRemark(Remark r) throws DuplicateRemarkException {
-        addressBook.addRemark(r);
-        indicateAddressBookChanged();
-    }
-
-    @Override
-    public void updateRemark(Remark target, Remark editedRemark)
-            throws DuplicateRemarkException, RemarkNotFoundException {
-        addressBook.updateRemark(target, editedRemark);
-        indicateAddressBookChanged();
-    }
-
-    @Override
-    public ObservableList<Remark> getFilteredRemarkList() {
-        return FXCollections.unmodifiableObservableList(filteredRemarks);
-    }
-
-    @Override
-    public synchronized void deleteRemark(Remark target) throws RemarkNotFoundException {
-        addressBook.removeRemark(target);
-        indicateAddressBookChanged();
-    }
-
-    @Override
-    public void handleListingUnit() {
-        ListingUnit unit = ListingUnit.getCurrentListingUnit();
-
-        if (unit.equals(LOCATION)) {
-            UniqueLocationPredicate predicate = new UniqueLocationPredicate(getUniqueLocationSet());
-            updateFilteredLessonList(predicate);
-        } else if (unit.equals(MODULE)) {
-            UniqueModuleCodePredicate predicate = new UniqueModuleCodePredicate(getUniqueCodeSet());
-            updateFilteredLessonList(predicate);
-        } else {
-            updateFilteredLessonList(ListingUnit.getCurrentPredicate());
-
-            if (getFilteredLessonList().isEmpty()) {
-                UniqueModuleCodePredicate predicate = new UniqueModuleCodePredicate(getUniqueCodeSet());
-                updateFilteredLessonList(predicate);
-                ListingUnit.setCurrentPredicate(predicate);
-                ListingUnit.setCurrentListingUnit(MODULE);
-                EventsCenter.getInstance().post(new RefreshPanelEvent());
-            }
-        }
-    }
-```
-###### \java\seedu\address\model\module\exceptions\DuplicateLessonException.java
-``` java
-/**
- * Signals that the operation will result in duplicate Lesson objects.
- */
-public class DuplicateLessonException extends DuplicateDataException {
-    public DuplicateLessonException() {
-        super("Operation would result in duplicate lesson");
-    }
-}
-```
-###### \java\seedu\address\model\module\exceptions\DuplicateRemarkException.java
-``` java
-/**
- * Signals that the operation will result in duplicate Remark objects.
- */
-public class DuplicateRemarkException extends DuplicateDataException {
-    public DuplicateRemarkException() {
-        super("Operation would result in duplicate remark");
-    }
-}
-```
-###### \java\seedu\address\model\module\exceptions\LessonNotFoundException.java
-``` java
-/**
- * Signals that the operation is unable to find the specified lesson.
- */
-public class LessonNotFoundException extends Exception {}
-```
-###### \java\seedu\address\model\module\exceptions\RemarkNotFoundException.java
-``` java
-/**
- * Indicates the remark cannot be found.
- */
-public class RemarkNotFoundException extends Exception {}
-```
-###### \java\seedu\address\model\module\predicates\FixedCodePredicate.java
-``` java
-/**
- * Tests that a {@code ReadOnlyLesson}'s {@code location} matches the given module code.
- */
-public class FixedCodePredicate implements Predicate<ReadOnlyLesson> {
-    private final Code codeTotest;
-
-    public FixedCodePredicate(Code code) {
-        this.codeTotest = code;
-    }
-
-    @Override
-    public boolean test(ReadOnlyLesson lesson) {
-        return lesson.getCode().equals(codeTotest);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof FixedCodePredicate // instanceof handles nulls
-                && this.codeTotest.equals(((FixedCodePredicate) other).codeTotest)); // state check
-    }
-
-}
-```
-###### \java\seedu\address\model\module\predicates\FixedLocationPredicate.java
-``` java
-/**
- * Tests that a {@code ReadOnlyLesson}'s {@code location} matches the given location.
- */
-public class FixedLocationPredicate implements Predicate<ReadOnlyLesson> {
-    private final Location locationToTest;
-
-    public FixedLocationPredicate(Location location) {
-        this.locationToTest = location;
-    }
-
-    @Override
-    public boolean test(ReadOnlyLesson lesson) {
-        return lesson.getLocation().equals(locationToTest);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof FixedLocationPredicate // instanceof handles nulls
-                && this.locationToTest.equals(((FixedLocationPredicate) other).locationToTest)); // state check
-    }
-
-}
-```
-###### \java\seedu\address\model\module\predicates\MarkedListPredicate.java
+###### /java/seedu/address/model/module/predicates/MarkedListPredicate.java
 ``` java
 /**
  * Tests that if a {@code ReadOnlyLesson} if in the marked list.
@@ -2009,59 +1677,7 @@ public class MarkedListPredicate implements Predicate<ReadOnlyLesson> {
 
 }
 ```
-###### \java\seedu\address\model\module\predicates\SelectedStickyNotePredicate.java
-``` java
-/**
- * Tests that a {@code Remark}'s {@code moduleCode} matches the given module code.
- */
-public class SelectedStickyNotePredicate implements Predicate<Remark> {
-    private final Code codeTotest;
-
-    public SelectedStickyNotePredicate(Code code) {
-        this.codeTotest = code;
-    }
-
-    @Override
-    public boolean test(Remark remark) {
-        return remark.moduleCode.equals(codeTotest);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof SelectedStickyNotePredicate // instanceof handles nulls
-                && this.codeTotest.equals(((SelectedStickyNotePredicate) other).codeTotest)); // state check
-    }
-
-}
-```
-###### \java\seedu\address\model\module\predicates\ShowSpecifiedLessonPredicate.java
-``` java
-/**
- * Tests that a {@code ReadOnlyLesson} matches the given lesson.
- */
-public class ShowSpecifiedLessonPredicate implements Predicate<ReadOnlyLesson> {
-    private final ReadOnlyLesson lesson;
-
-    public ShowSpecifiedLessonPredicate(ReadOnlyLesson lesson) {
-        this.lesson = lesson;
-    }
-
-    @Override
-    public boolean test(ReadOnlyLesson lesson) {
-        return this.lesson.isSameStateAs(lesson);
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        return other == this // short circuit if same object
-                || (other instanceof ShowSpecifiedLessonPredicate // instanceof handles nulls
-                && this.lesson.isSameStateAs((((ShowSpecifiedLessonPredicate) other).lesson))); // state check
-    }
-
-}
-```
-###### \java\seedu\address\model\module\predicates\UniqueLocationPredicate.java
+###### /java/seedu/address/model/module/predicates/UniqueLocationPredicate.java
 ``` java
 /**
  * Tests that a {@code ReadOnlyPerson}'s {@code Address} is unique in the given list.
@@ -2092,7 +1708,7 @@ public class UniqueLocationPredicate implements Predicate<ReadOnlyLesson> {
 
 }
 ```
-###### \java\seedu\address\model\module\predicates\UniqueModuleCodePredicate.java
+###### /java/seedu/address/model/module/predicates/UniqueModuleCodePredicate.java
 ``` java
 /**
  * Tests that a {@code ReadOnlyPerson}'s {@code Code} is unique in the given list.
@@ -2123,72 +1739,111 @@ public class UniqueModuleCodePredicate implements Predicate<ReadOnlyLesson> {
 
 }
 ```
-###### \java\seedu\address\model\module\Remark.java
+###### /java/seedu/address/model/module/predicates/SelectedStickyNotePredicate.java
 ``` java
 /**
- * Represents a Module's remark(if any) in the application.
+ * Tests that a {@code Remark}'s {@code moduleCode} matches the given module code.
  */
-public class Remark {
+public class SelectedStickyNotePredicate implements Predicate<Remark> {
+    private final Code codeTotest;
 
-    public static final String MESSAGE_REMARK_CONSTRAINTS =
-            "Remark can only be no more than 150 characters and cannot be empty";
-
-    public static final int REMARK_LENGTH_LIMIT = 150;
-
-    public final String value;
-    public final Code moduleCode;
-
-
-    /**
-     * Validates given remark content.
-     *
-     * @throws IllegalValueException if given group string is invalid.
-     */
-    public Remark(String remark, Code module) throws IllegalValueException {
-        requireNonNull(remark);
-        if (!isValidRemark(remark)) {
-            throw new IllegalValueException(MESSAGE_REMARK_CONSTRAINTS);
-        }
-        value = remark;
-        moduleCode = module;
-    }
-
-    /**
-     * Creates a copy of the given Remark.
-     */
-    public Remark(Remark source) {
-        value = source.value;
-        moduleCode = source.moduleCode;
-    }
-
-    /**
-     * Returns true if a given string is a valid Remark.
-     */
-    public static boolean isValidRemark(String test) {
-        test = test.trim();
-        return test.length() <= REMARK_LENGTH_LIMIT && test.length() > 0;
+    public SelectedStickyNotePredicate(Code code) {
+        this.codeTotest = code;
     }
 
     @Override
-    public String toString() {
-        return value;
+    public boolean test(Remark remark) {
+        return remark.moduleCode.equals(codeTotest);
     }
 
     @Override
     public boolean equals(Object other) {
         return other == this // short circuit if same object
-                || (other instanceof Remark // instanceof handles nulls
-                && this.value.equals(((Remark) other).value)
-                && this.moduleCode.equals(((Remark) other).moduleCode)); // state check
+                || (other instanceof SelectedStickyNotePredicate // instanceof handles nulls
+                && this.codeTotest.equals(((SelectedStickyNotePredicate) other).codeTotest)); // state check
+    }
+
+}
+```
+###### /java/seedu/address/model/module/predicates/FixedCodePredicate.java
+``` java
+/**
+ * Tests that a {@code ReadOnlyLesson}'s {@code location} matches the given module code.
+ */
+public class FixedCodePredicate implements Predicate<ReadOnlyLesson> {
+    private final Code codeTotest;
+
+    public FixedCodePredicate(Code code) {
+        this.codeTotest = code;
     }
 
     @Override
-    public int hashCode() {
-        return value.hashCode();
+    public boolean test(ReadOnlyLesson lesson) {
+        return lesson.getCode().equals(codeTotest);
     }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof FixedCodePredicate // instanceof handles nulls
+                && this.codeTotest.equals(((FixedCodePredicate) other).codeTotest)); // state check
+    }
+
 }
 ```
-###### \java\seedu\address\model\module\UniqueRemarkList.java
+###### /java/seedu/address/model/module/predicates/FixedLocationPredicate.java
+``` java
+/**
+ * Tests that a {@code ReadOnlyLesson}'s {@code location} matches the given location.
+ */
+public class FixedLocationPredicate implements Predicate<ReadOnlyLesson> {
+    private final Location locationToTest;
+
+    public FixedLocationPredicate(Location location) {
+        this.locationToTest = location;
+    }
+
+    @Override
+    public boolean test(ReadOnlyLesson lesson) {
+        return lesson.getLocation().equals(locationToTest);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof FixedLocationPredicate // instanceof handles nulls
+                && this.locationToTest.equals(((FixedLocationPredicate) other).locationToTest)); // state check
+    }
+
+}
+```
+###### /java/seedu/address/model/module/predicates/ShowSpecifiedLessonPredicate.java
+``` java
+/**
+ * Tests that a {@code ReadOnlyLesson} matches the given lesson.
+ */
+public class ShowSpecifiedLessonPredicate implements Predicate<ReadOnlyLesson> {
+    private final ReadOnlyLesson lesson;
+
+    public ShowSpecifiedLessonPredicate(ReadOnlyLesson lesson) {
+        this.lesson = lesson;
+    }
+
+    @Override
+    public boolean test(ReadOnlyLesson lesson) {
+        return this.lesson.isSameStateAs(lesson);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof ShowSpecifiedLessonPredicate // instanceof handles nulls
+                && this.lesson.isSameStateAs((((ShowSpecifiedLessonPredicate) other).lesson))); // state check
+    }
+
+}
+```
+###### /java/seedu/address/model/module/UniqueRemarkList.java
 ``` java
 /**
  * A list of remarks that enforces no nulls and uniqueness between its elements.
@@ -2336,7 +1991,108 @@ public class UniqueRemarkList implements Iterable<Remark> {
 
 }
 ```
-###### \java\seedu\address\model\ReadOnlyAddressBook.java
+###### /java/seedu/address/model/module/exceptions/LessonNotFoundException.java
+``` java
+/**
+ * Signals that the operation is unable to find the specified lesson.
+ */
+public class LessonNotFoundException extends Exception {}
+```
+###### /java/seedu/address/model/module/exceptions/RemarkNotFoundException.java
+``` java
+/**
+ * Indicates the remark cannot be found.
+ */
+public class RemarkNotFoundException extends Exception {}
+```
+###### /java/seedu/address/model/module/exceptions/DuplicateRemarkException.java
+``` java
+/**
+ * Signals that the operation will result in duplicate Remark objects.
+ */
+public class DuplicateRemarkException extends DuplicateDataException {
+    public DuplicateRemarkException() {
+        super("Operation would result in duplicate remark");
+    }
+}
+```
+###### /java/seedu/address/model/module/exceptions/DuplicateLessonException.java
+``` java
+/**
+ * Signals that the operation will result in duplicate Lesson objects.
+ */
+public class DuplicateLessonException extends DuplicateDataException {
+    public DuplicateLessonException() {
+        super("Operation would result in duplicate lesson");
+    }
+}
+```
+###### /java/seedu/address/model/module/Remark.java
+``` java
+/**
+ * Represents a Module's remark(if any) in the application.
+ */
+public class Remark {
+
+    public static final String MESSAGE_REMARK_CONSTRAINTS =
+            "Remark can only be no more than 150 characters and cannot be empty";
+
+    public static final int REMARK_LENGTH_LIMIT = 150;
+
+    public final String value;
+    public final Code moduleCode;
+
+
+    /**
+     * Validates given remark content.
+     *
+     * @throws IllegalValueException if given group string is invalid.
+     */
+    public Remark(String remark, Code module) throws IllegalValueException {
+        requireNonNull(remark);
+        if (!isValidRemark(remark)) {
+            throw new IllegalValueException(MESSAGE_REMARK_CONSTRAINTS);
+        }
+        value = remark;
+        moduleCode = module;
+    }
+
+    /**
+     * Creates a copy of the given Remark.
+     */
+    public Remark(Remark source) {
+        value = source.value;
+        moduleCode = source.moduleCode;
+    }
+
+    /**
+     * Returns true if a given string is a valid Remark.
+     */
+    public static boolean isValidRemark(String test) {
+        test = test.trim();
+        return test.length() <= REMARK_LENGTH_LIMIT && test.length() > 0;
+    }
+
+    @Override
+    public String toString() {
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof Remark // instanceof handles nulls
+                && this.value.equals(((Remark) other).value)
+                && this.moduleCode.equals(((Remark) other).moduleCode)); // state check
+    }
+
+    @Override
+    public int hashCode() {
+        return value.hashCode();
+    }
+}
+```
+###### /java/seedu/address/model/ReadOnlyAddressBook.java
 ``` java
     /**
      * Returns an unmodifiable view of the remarks list.
@@ -2344,180 +2100,424 @@ public class UniqueRemarkList implements Iterable<Remark> {
      */
     ObservableList<Remark> getRemarkList();
 ```
-###### \java\seedu\address\storage\XmlAdaptedRemark.java
+###### /java/seedu/address/model/ListingUnit.java
 ``` java
 /**
- * Stores remark data in an XML file
+ * A Enumeration class that consists of all possible Listing
+ * Unit in the panel.
  */
-public class XmlAdaptedRemark {
+public enum ListingUnit {
+    MODULE, LOCATION, LESSON;
 
-    @XmlElement(required = true)
-    private String content;
-
-    @XmlElement(required = true)
-    private String code;
+    private static ListingUnit currentListingUnit = MODULE;
+    private static Predicate currentPredicate;
 
     /**
-     * Constructs an XmlAdaptedRemark.
-     * This is the no-arg constructor that is required by JAXB.
+     * Get current Listing unit
      */
-    public XmlAdaptedRemark() {}
-
-    /**
-     * Converts a given Remark into this class for JAXB use.
-     *
-     * @param source future changes to this will not affect the created
-     */
-    public XmlAdaptedRemark(Remark source) {
-        content = source.value;
-        code = source.moduleCode.fullCodeName;
+    public static ListingUnit getCurrentListingUnit() {
+        return currentListingUnit;
     }
 
     /**
-     * Converts this jaxb-friendly adapted tag object into the model's Remark object.
-     *
-     * @throws IllegalValueException if there were any data constraints violated in the adapted Remark
+     * Reset listing unit in the panel with the new ListingUnit and set previous listing unit
      */
-    public Remark toModelType() throws IllegalValueException {
-        final Code code = new Code(this.code);
-        return new Remark(content, code);
+    public static void setCurrentListingUnit(ListingUnit unit) {
+        currentListingUnit = unit;
+    }
+
+    /**
+     * Get current predicate
+     */
+    public static Predicate getCurrentPredicate() {
+        return currentPredicate;
+    }
+
+    /**
+     * Set current predicate
+     */
+    public static void setCurrentPredicate(Predicate predicate) {
+        currentPredicate = predicate;
     }
 
 }
 ```
-###### \java\seedu\address\ui\CombinePanel.java
+###### /java/seedu/address/model/AddressBook.java
 ``` java
-    @Subscribe
-    private void handleRemarkChangedEvent(RemarkChangedEvent event) {
-        logger.info(LogsCenter.getEventHandlingLogMessage(event));
-        stickyNotesInit();
+    public void setRemarks(Set<Remark> remarks) {
+        this.remarks.setRemarks(remarks);
+    }
+```
+###### /java/seedu/address/model/AddressBook.java
+``` java
+    /**
+     * Adds a lesson to the marked list.
+     * Only person exists in the ModU can be added into the marked list.
+     *
+     * @throws DuplicateLessonException if an equivalent lesson already exists.
+     */
+    public void bookmarkLesson(ReadOnlyLesson m) throws DuplicateLessonException {
+        if (m.isMarked()) {
+            throw new DuplicateLessonException();
+        } else {
+            m.setAsMarked();
+        }
     }
 
     /**
-     * This method will initilize the data for sticky notes screen
+     * Removes a lesson from the marked list.
+     * Only person exists in the marked List can be unbookmarked from the marked list.
      */
-    public void noteDataInit() {
-        ObservableList<Remark> remarks = logic.getFilteredRemarkList();
-        int size = remarks.size();
-        int count = 0;
-        int index = 1;
+    public void unBookmarkLesson(ReadOnlyLesson m) {
+        m.setAsUnmarked();
+    }
+```
+###### /java/seedu/address/model/AddressBook.java
+``` java
+    //// remark-level operations
+    public void addRemark(Remark r) throws DuplicateRemarkException {
+        remarks.add(r);
+    }
 
-        noteData = new String[3][3];
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (count >= size) {
-                    continue;
-                }
-                Remark remark = remarks.get(count);
-                if (count < size) {
-                    noteData[i][j] = index + "." + remark.moduleCode.fullCodeName + " : " + remark.value;
-                    index++;
-                    count++;
-                }
+    public void updateRemark(Remark target, Remark editedRemark) throws
+            DuplicateRemarkException, RemarkNotFoundException {
+        remarks.setRemark(target, editedRemark);
+    }
+
+    /**
+     * Removes {@code key} from this {@code AddressBook}.
+     * @throws RemarkNotFoundException if the {@code key} is not in this {@code AddressBook}.
+     */
+    public boolean removeRemark(Remark key) throws RemarkNotFoundException {
+        if (remarks.remove(key)) {
+            return true;
+        } else {
+            throw new RemarkNotFoundException();
+        }
+    }
+```
+###### /java/seedu/address/model/AddressBook.java
+``` java
+    @Override
+    public ObservableList<Remark> getRemarkList() {
+        return remarks.asObservableList();
+    }
+```
+###### /java/seedu/address/model/ModelManager.java
+``` java
+    @Override
+    public HashSet<Location> getUniqueLocationSet() {
+        HashSet<Location> set = new HashSet<>();
+
+        ObservableList<ReadOnlyLesson> lessonLst = getFilteredLessonList();
+        updateFilteredLessonList(PREDICATE_SHOW_ALL_LESSONS);
+        for (ReadOnlyLesson l : lessonLst) {
+            if (!set.contains(l.getLocation())) {
+                set.add(l.getLocation());
+            }
+        }
+        return set;
+    }
+
+    @Override
+    public HashSet<Code> getUniqueCodeSet() {
+        HashSet<Code> set = new HashSet<>();
+
+        ObservableList<ReadOnlyLesson> lessonLst = getFilteredLessonList();
+        updateFilteredLessonList(PREDICATE_SHOW_ALL_LESSONS);
+        for (ReadOnlyLesson l : lessonLst) {
+            if (!set.contains(l.getCode())) {
+                set.add(l.getCode());
+            }
+        }
+        return set;
+    }
+```
+###### /java/seedu/address/model/ModelManager.java
+``` java
+    @Override
+    public void bookmarkLesson(ReadOnlyLesson target) throws DuplicateLessonException {
+        addressBook.bookmarkLesson(target);
+        indicateAddressBookChanged();
+    }
+
+    @Override
+    public void unBookmarkLesson(ReadOnlyLesson target) {
+        addressBook.unBookmarkLesson(target);
+        indicateAddressBookChanged();
+    }
+```
+###### /java/seedu/address/model/ModelManager.java
+``` java
+    @Override
+    public void updateFilteredRemarkList(Predicate<Remark> predicate) {
+        requireNonNull(predicate);
+        filteredRemarks.setPredicate(predicate);
+    }
+
+    @Override
+    public void addRemark(Remark r) throws DuplicateRemarkException {
+        addressBook.addRemark(r);
+        indicateAddressBookChanged();
+    }
+
+    @Override
+    public void updateRemark(Remark target, Remark editedRemark)
+            throws DuplicateRemarkException, RemarkNotFoundException {
+        addressBook.updateRemark(target, editedRemark);
+        indicateAddressBookChanged();
+    }
+
+    @Override
+    public ObservableList<Remark> getFilteredRemarkList() {
+        return FXCollections.unmodifiableObservableList(filteredRemarks);
+    }
+
+    @Override
+    public synchronized void deleteRemark(Remark target) throws RemarkNotFoundException {
+        addressBook.removeRemark(target);
+        indicateAddressBookChanged();
+    }
+
+    @Override
+    public void handleListingUnit() {
+        ListingUnit unit = ListingUnit.getCurrentListingUnit();
+
+        if (unit.equals(LOCATION)) {
+            UniqueLocationPredicate predicate = new UniqueLocationPredicate(getUniqueLocationSet());
+            updateFilteredLessonList(predicate);
+        } else if (unit.equals(MODULE)) {
+            UniqueModuleCodePredicate predicate = new UniqueModuleCodePredicate(getUniqueCodeSet());
+            updateFilteredLessonList(predicate);
+        } else {
+            updateFilteredLessonList(ListingUnit.getCurrentPredicate());
+
+            if (getFilteredLessonList().isEmpty()) {
+                UniqueModuleCodePredicate predicate = new UniqueModuleCodePredicate(getUniqueCodeSet());
+                updateFilteredLessonList(predicate);
+                ListingUnit.setCurrentPredicate(predicate);
+                ListingUnit.setCurrentListingUnit(MODULE);
+                EventsCenter.getInstance().post(new RefreshPanelEvent());
             }
         }
     }
 ```
-###### \java\seedu\address\ui\CommandBox.java
+###### /java/seedu/address/model/lecturer/Lecturer.java
 ``` java
+public class Lecturer {
+
+    public static final String MESSAGE_LECTURER_CONSTRAINTS = "Lecturer names should be alphabetic";
+    public static final String LECTURER_VALIDATION_REGEX = "[^\\s].*";
+
+    public final String lecturerName;
+
     /**
-     * Configure border colour to indicate validity of user input.
+     * Validates given Lecturer name.
+     *
+     * @throws IllegalValueException if the given lecturer name string is invalid.
      */
-    private void configBorderColor(String allTextInput) {
-        checkBox.setVisible(true);
-        try {
-            tester.parseCommand(allTextInput);
-            commandTextField.setStyle(userPrefFontSize + "-fx-border-color: green; -fx-border-width: 2");
-            checkBox.setGraphic(tick);
-            checkBox.toFront();
-            checkBox.setVisible(true);
-        } catch (ParseException e) {
-            commandTextField.setStyle(userPrefFontSize + "-fx-border-color: red; -fx-border-width: 2");
-            checkBox.setGraphic(cross);
-            checkBox.toFront();
-            checkBox.setVisible(true);
+    public Lecturer(String name) throws IllegalValueException {
+        requireNonNull(name);
+        String trimmedName = name.trim();
+        if (!isValidLecturerName(trimmedName)) {
+            throw new IllegalValueException(MESSAGE_LECTURER_CONSTRAINTS);
+        }
+        this.lecturerName = trimmedName;
+    }
+
+    /**
+     * Returns true if a given string is a valid Lecturer name.
+     */
+    public static boolean isValidLecturerName(String test) {
+        return test.matches(LECTURER_VALIDATION_REGEX) && !test.isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other == this // short circuit if same object
+                || (other instanceof Lecturer // instanceof handles nulls
+                && this.lecturerName.equals(((Lecturer) other).lecturerName)); // state check
+    }
+
+    @Override
+    public int hashCode() {
+        return lecturerName.hashCode();
+    }
+
+    /**
+     * Format state as text for viewing.
+     */
+    public String toString() {
+        return '[' + lecturerName + ']';
+    }
+
+}
+```
+###### /java/seedu/address/model/lecturer/UniqueLecturerList.java
+``` java
+public class UniqueLecturerList implements Iterable<Lecturer> {
+
+    private final ObservableList<Lecturer> internalList = FXCollections.observableArrayList();
+
+    /**
+     * Constructs empty LecturerList.
+     */
+    public UniqueLecturerList() {}
+
+    /**
+     * Creates a UniqueLecturerList using given lecturers.
+     * Enforces no nulls.
+     */
+    public UniqueLecturerList(Set<Lecturer> lecturers) {
+        requireAllNonNull(lecturers);
+        internalList.addAll(lecturers);
+
+        assert CollectionUtil.elementsAreUnique(internalList);
+    }
+
+    /**
+     * Returns all lecturers in this list as a Set.
+     * This set is mutable and change-insulated against the internal list.
+     */
+    public Set<Lecturer> toSet() {
+        assert CollectionUtil.elementsAreUnique(internalList);
+        return new HashSet<>(internalList);
+    }
+
+    /**
+     * Replaces the lecturers in this list with those in the argument Lecturer list.
+     */
+    public void setLectuers(Set<Lecturer> lectuers) {
+        requireAllNonNull(lectuers);
+        internalList.setAll(lectuers);
+        assert CollectionUtil.elementsAreUnique(internalList);
+    }
+
+    /**
+     * Ensures every Lecturer in the argument list exists in this object.
+     */
+    public void mergeFrom(UniqueLecturerList from) {
+        final Set<Lecturer> alreadyInside = this.toSet();
+        from.internalList.stream()
+                .filter(lecturer -> !alreadyInside.contains(lecturer))
+                .forEach(internalList::add);
+
+        assert CollectionUtil.elementsAreUnique(internalList);
+    }
+
+    /**
+     * Returns true if the list contains an equivalent Lecturer as the given argument.
+     */
+    public boolean contains(Lecturer toCheck) {
+        requireNonNull(toCheck);
+        return internalList.contains(toCheck);
+    }
+
+    /**
+     * Adds a Lecturer to the list.
+     *
+     * @throws DuplicateLecturerException if the Lecturer to add is a duplicate of an existing Lecturer in the list.
+     */
+    public void add(Lecturer toAdd) throws DuplicateLecturerException {
+        requireNonNull(toAdd);
+        if (contains(toAdd)) {
+            throw new DuplicateLecturerException();
+        }
+        internalList.add(toAdd);
+
+        assert CollectionUtil.elementsAreUnique(internalList);
+    }
+
+    @Override
+    public Iterator<Lecturer> iterator() {
+        assert CollectionUtil.elementsAreUnique(internalList);
+        return internalList.iterator();
+    }
+
+    /**
+     * Returns the backing list as an unmodifiable {@code ObservableList}.
+     */
+    public ObservableList<Lecturer> asObservableList() {
+        assert CollectionUtil.elementsAreUnique(internalList);
+        return FXCollections.unmodifiableObservableList(internalList);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        assert CollectionUtil.elementsAreUnique(internalList);
+        return other == this // short circuit if same object
+                || (other instanceof UniqueLecturerList // instanceof handles nulls
+                        && this.internalList.equals(((UniqueLecturerList) other).internalList));
+    }
+
+    /**
+     * Returns true if the element in this list is equal to the elements in {@code other}.
+     * The elements do not have to be in the same order.
+     */
+    public boolean equalsOrderInsensitive(UniqueLecturerList other) {
+        assert CollectionUtil.elementsAreUnique(internalList);
+        assert CollectionUtil.elementsAreUnique(other.internalList);
+        return this == other || new HashSet<>(this.internalList).equals(new HashSet<>(other.internalList));
+    }
+
+    @Override
+    public int hashCode() {
+        assert CollectionUtil.elementsAreUnique(internalList);
+        return internalList.hashCode();
+    }
+
+    /**
+     * Signals that an operation would have violated the 'no duplicates' property of the list.
+     */
+    public static class DuplicateLecturerException extends DuplicateDataException {
+        protected DuplicateLecturerException() {
+            super("Operation would result in duplicate lecturers");
         }
     }
+
+}
 ```
-###### \java\seedu\address\ui\LessonListCard.java
+###### /java/seedu/address/model/Model.java
 ``` java
     /**
-     * Change the card state to hide irrelevant information and only show address
+     * Get a hash set of all the distinct locations
      */
-    private void switchToModuleCard() {
-        code.setVisible(true);
-        venue.setVisible(false);
-        group.setVisible(false);
-        timeSlot.setVisible(false);
-        classType.setVisible(false);
-        lecturers.setVisible(false);
-    }
+    HashSet<Location> getUniqueLocationSet();
 
     /**
-     * Change the card state to hide irrelevant information and only show phone
+     * Get a hash set of all the distinct module codes
      */
-    private void switchToLocationCard() {
-        code.setVisible(false);
-        venue.setVisible(true);
-        group.setVisible(false);
-        timeSlot.setVisible(false);
-        classType.setVisible(false);
-        lecturers.setVisible(false);
-        bookmark.setVisible(false);
-
-    }
-
-
-    /**
-     * Change the card state to hide irrelevant information and only show lesson
-     */
-    private void switchToLessonCard() {
-        if (lesson.isMarked()) {
-            star.setFitWidth(30);
-            star.setFitHeight(30);
-            bookmark.setGraphic(star);
-            bookmark.setVisible(true);
-        }
-    }
-
-
-    /**
-     * Change the card state depending on the current listing unit
-     */
-    private void switchCard() {
-        switch (ListingUnit.getCurrentListingUnit()) {
-        case LOCATION:
-            switchToLocationCard();
-            break;
-
-        case MODULE:
-            switchToModuleCard();
-            break;
-
-        default:
-            switchToLessonCard();
-            break;
-        }
-    }
+    HashSet<Code> getUniqueCodeSet();
 ```
-###### \java\seedu\address\ui\LessonListPanel.java
+###### /java/seedu/address/model/Model.java
 ``` java
-    private void setConnections(ObservableList<ReadOnlyLesson> infoList) {
+    /**
+     * Updates the filter of the filtered remark list to filter by the given {@code predicate}.
+     *
+     * @throws NullPointerException if {@code predicate} is null.
+     */
+    void updateFilteredRemarkList(Predicate<Remark> predicate);
 
-        ObservableList<LessonListCard> mappedList = EasyBind.map(
-                infoList, (person) -> new LessonListCard(person, infoList.indexOf(person) + 1));
+    /**
+     * Adds the given remark.
+     * @throws DuplicateRemarkException
+     */
+    void addRemark(Remark r) throws DuplicateRemarkException;
 
-        lessonListView.setItems(mappedList);
-        lessonListView.setCellFactory(listView -> new LessonListViewCell());
-        setEventHandlerForSelectionChangeEvent();
+    /**
+     * Deletes the given remark.
+     */
+    void deleteRemark(Remark target) throws RemarkNotFoundException;
 
-    }
-```
-###### \java\seedu\address\ui\LessonListPanel.java
-``` java
-    @Subscribe
-    private void handleRefreshPanelEvent(RefreshPanelEvent event) {
-        logger.info(LogsCenter.getEventHandlingLogMessage(event));
-        setConnections(lessonList);
-    }
+    /**
+     * Update the given remark.
+     * @throws DuplicateRemarkException
+     * @throws RemarkNotFoundException
+     */
+    void updateRemark(Remark target, Remark editedRemark) throws DuplicateRemarkException, RemarkNotFoundException;
+
+    /**
+     * handle different ListingUnit after redo and undo
+     */
+    void handleListingUnit();
 ```

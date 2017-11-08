@@ -1,252 +1,197 @@
 # caoliangnus
-###### \java\seedu\address\logic\commands\ColorKeywordCommandTest.java
+###### /java/systemtests/ColorEnableSystemTest.java
 ``` java
-public class ColorKeywordCommandTest {
-
-    @Rule
-    public final EventsCollectorRule eventsCollectorRule = new EventsCollectorRule();
-
+public class ColorEnableSystemTest extends AddressBookSystemTest {
     @Test
-    public void execute_enableColorCommand_success() {
-        CommandResult result = new ColorKeywordCommand("enable").execute();
-        assertEquals(ENABLE_COLOR + MESSAGE_SUCCESS, result.feedbackToUser);
-        assertTrue(eventsCollectorRule.eventsCollector.getMostRecent() instanceof ColorKeywordEvent);
-        assertTrue(eventsCollectorRule.eventsCollector.getSize() == 1);
-    }
+    public void colorEnable() {
+        String command;
+        String expectedResultMessage;
 
-    @Test
-    public void execute_disableColorCommand_success() {
-        CommandResult result = new ColorKeywordCommand("disable").execute();
-        assertEquals(DISABLE_COLOR + MESSAGE_SUCCESS, result.feedbackToUser);
-        assertTrue(eventsCollectorRule.eventsCollector.getMostRecent() instanceof ColorKeywordEvent);
-        assertTrue(eventsCollectorRule.eventsCollector.getSize() == 1);
-    }
+        /* Case: enable highlighting feature with leading spaces and trailing space
+         */
+        assertCommandSuccess("   " + ColorKeywordCommand.COMMAND_WORD + " enable   ");
 
-}
-```
-###### \java\seedu\address\logic\commands\CommandTestUtil.java
-``` java
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_CLASS_TYPE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_FONT_SIZE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GROUP;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_LECTURER;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_MODULE_CODE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_TIME_SLOT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_VENUE;
+        /* Case: enable highlighting feature when already enabled
+         */
+        assertCommandSuccess("   " + ColorKeywordCommand.COMMAND_WORD + " enable   ");
 
-import java.util.ArrayList;
-import java.util.List;
+        /* Case: attempt to enable highlighting command keyword that are undefined */
+        command = ColorKeywordCommand.COMMAND_WORD + " " + "Enabled";
+        expectedResultMessage = String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
+                ColorKeywordCommand.MESSAGE_USAGE);
+        assertCommandFailure(command, expectedResultMessage);
 
-import seedu.address.commons.exceptions.IllegalValueException;
-import seedu.address.logic.commands.exceptions.CommandException;
-import seedu.address.model.AddressBook;
-import seedu.address.model.Model;
-import seedu.address.model.module.Code;
-import seedu.address.model.module.ReadOnlyLesson;
-import seedu.address.model.module.exceptions.LessonNotFoundException;
-import seedu.address.model.module.predicates.FixedCodePredicate;
-import seedu.address.model.module.predicates.ShowSpecifiedLessonPredicate;
-import seedu.address.testutil.EditLessonDescriptorBuilder;
+        /* Case: disable highlighting feature with leading spaces and trailing space
+         */
+        assertCommandSuccess("   " + ColorKeywordCommand.COMMAND_WORD + " disable   ");
 
-/**
- * Contains helper methods for testing commands.
- */
-public class CommandTestUtil {
+        /* Case: disable highlighting feature when already disabled
+         */
+        assertCommandSuccess("   " + ColorKeywordCommand.COMMAND_WORD + " disable   ");
 
-    public static final String VALID_CODE_MA1101R = "MA1101R";
-    public static final String VALID_CODE_CS2101 = "CS2101";
-    public static final String VALID_CODE_MA1102R = "MA1102R";
-    public static final String VALID_CLASSTYPE_MA1101R = "Lec";
-    public static final String VALID_CLASSTYPE_CS2101 = "Tut";
-    public static final String VALID_VENUE_MA1101R = "LT30";
-    public static final String VALID_VENUE_MA1102R = "LT29";
-    public static final String VALID_VENUE_CS2101 = "COM02-04";
-    public static final String VALID_GROUP_MA1101R = "3";
-    public static final String VALID_GROUP_CS2101 = "2";
-    public static final String VALID_TIMESLOT_MA1101R = "TUE[1300-1500]";
-    public static final String VALID_TIMESLOT_CS2101 = "TUE[1600-1800]";
-    public static final String VALID_LECTURER_MA1101R = "Ma Siu Lun";
-    public static final String VALID_LECTURER_CS2101 = "Diana";
-    public static final String VALID_FONT_SIZE_XSMALL = "xsmall";
-    public static final String VALID_FONT_SIZE_SMALL = "small";
-    public static final String VALID_THEME_LIGHT = "light";
-    public static final String VALID_THEME_DARK = "dark";
+        /* Case: attempt to disable highlighting command keyword that are undefined */
+        command = ColorKeywordCommand.COMMAND_WORD + " " + "Disabled";
+        expectedResultMessage = String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
+                ColorKeywordCommand.MESSAGE_USAGE);
+        assertCommandFailure(command, expectedResultMessage);
 
 
-    public static final String CODE_DESC_MA1101R = " " + PREFIX_MODULE_CODE + VALID_CODE_MA1101R;
-    public static final String CODE_DESC_CS2101 = " " + PREFIX_MODULE_CODE + VALID_CODE_CS2101;
-    public static final String CLASSTYPE_DESC_MA1101R = " " + PREFIX_CLASS_TYPE + VALID_CLASSTYPE_MA1101R;
-    public static final String CLASSTYPE_DESC_CS2101 = " " + PREFIX_CLASS_TYPE + VALID_CLASSTYPE_CS2101;
-    public static final String VENUE_DESC_MA1101R = " " + PREFIX_VENUE + VALID_VENUE_MA1101R;
-    public static final String VENUE_DESC_CS2101 = " " + PREFIX_VENUE + VALID_VENUE_CS2101;
-    public static final String GROUP_DESC_MA1101R = " " + PREFIX_GROUP + VALID_GROUP_MA1101R;
-    public static final String GROUP_DESC_CS2101 = " " + PREFIX_GROUP + VALID_GROUP_CS2101;
-    public static final String TIMESLOT_DESC_MA1101R = " " + PREFIX_TIME_SLOT + VALID_TIMESLOT_MA1101R;
-    public static final String TIMESLOT_DESC_CS2101 = " " + PREFIX_TIME_SLOT + VALID_TIMESLOT_CS2101;
-    public static final String LECTURER_DESC_MA1101R = " " + PREFIX_LECTURER + VALID_LECTURER_MA1101R;
-    public static final String LECTURER_DESC_CS2101 = " " + PREFIX_LECTURER + VALID_LECTURER_CS2101;
-    public static final String FONT_SIZE_DESC_XSMALL = " " + PREFIX_FONT_SIZE + VALID_FONT_SIZE_XSMALL;
-    public static final String FONT_SIZE_DESC_SMALL = " " + PREFIX_FONT_SIZE + VALID_FONT_SIZE_SMALL;
+        /* Case: mixed case command word -> rejected */
+        assertCommandFailure("EnaBle", MESSAGE_UNKNOWN_COMMAND);
 
-
-    public static final String INVALID_CODE_DESC = " " + PREFIX_MODULE_CODE + "MA*"; //code format is not correct
-    public static final String INVALID_CLASSTYPE_DESC = " " + PREFIX_CLASS_TYPE + "1a"; // 'a' not allowed in class type
-    public static final String INVALID_VENUE_DESC = " " + PREFIX_VENUE; // empty string not allowed for venue
-    public static final String INVALID_GROUP_DESC = " " + PREFIX_GROUP + "SL1"; // 'SL' not allowed for addresses
-    public static final String INVALID_TIMESLOT_DESC = " " + PREFIX_TIME_SLOT + "FRIDAY[1200-1300]"; // Only 3 letters
-    public static final String INVALID_LECTURER_DESC = " " + PREFIX_LECTURER + ""; // '*' not allowed in tags
-    public static final String INVALID_FONT_SIZE_DESC = " " + PREFIX_FONT_SIZE
-            + "small!"; // '!' not allowed in font size
-    public static final String INVALID_THEME_DESC = "blue";
-
-    public static final EditCommand.EditLessonDescriptor DESC_MA1101R;
-    public static final EditCommand.EditLessonDescriptor DESC_CS2101;
-
-    public static final FixedCodePredicate MA1101R_CODE_PREDICATE;
-
-    static {
-        DESC_MA1101R = new EditLessonDescriptorBuilder().withCode(VALID_CODE_MA1101R)
-                .withClassType(VALID_CLASSTYPE_MA1101R).withLocation(VALID_VENUE_MA1101R).withGroup(VALID_GROUP_MA1101R)
-                .withTimeSlot(VALID_TIMESLOT_MA1101R).withLecturers(VALID_LECTURER_MA1101R).build();
-        DESC_CS2101 = new EditLessonDescriptorBuilder().withCode(VALID_CODE_CS2101)
-                .withClassType(VALID_CLASSTYPE_CS2101).withLocation(VALID_VENUE_CS2101).withGroup(VALID_GROUP_CS2101)
-                .withTimeSlot(VALID_TIMESLOT_CS2101).withLecturers(VALID_LECTURER_CS2101).build();
-        try {
-            MA1101R_CODE_PREDICATE = new FixedCodePredicate(new Code(VALID_CODE_MA1101R));
-        } catch (IllegalValueException e) {
-            throw new AssertionError("The code cannot be invalid");
-        }
+        /* Case: Wrong command word -> rejected */
+        assertCommandFailure("enabledisable", MESSAGE_UNKNOWN_COMMAND);
     }
 
     /**
-     * Executes the given {@code command}, confirms that <br>
-     * - the result message matches {@code expectedMessage} <br>
-     * - the {@code actualModel} matches {@code expectedModel}
+     * Executes {@code command} and verifies that the command box displays an empty string, the result display
+     * box displays {@code ColorKeywordCommand#MESSAGE_SUCCESS} and the model related components equal to an
+     * empty model.
+     * These verifications are done by
+     * {@code AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)}.<br>
+     * Also verifies that the command box has the default style class and the status bar's sync status changes.
+     * @see AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)
      */
-    public static void assertCommandSuccess(Command command, Model actualModel, String expectedMessage,
-            Model expectedModel) {
-        try {
-            CommandResult result = command.execute();
-            assertEquals(expectedMessage, result.feedbackToUser);
-            assertEquals(expectedModel, actualModel);
-        } catch (CommandException ce) {
-            throw new AssertionError("Execution of command should not fail.", ce);
+    private void assertCommandSuccess(String command) {
+        String text;
+        if (command.contains("enable")) {
+            text = ColorKeywordCommand.ENABLE_COLOR + ColorKeywordCommand.MESSAGE_SUCCESS;
+        } else {
+            text = ColorKeywordCommand.DISABLE_COLOR + ColorKeywordCommand.MESSAGE_SUCCESS;
         }
+
+        assertCommandSuccess(command, text, getModel());
+        assertStatusBarUnchanged();
+
+
     }
 
     /**
-     * Executes the given {@code command}, confirms that <br>
-     * - a {@code CommandException} is thrown <br>
-     * - the CommandException message matches {@code expectedMessage} <br>
-     * - the address book and the filtered person list in the {@code actualModel} remain unchanged
+     * Performs the same verification as {@code assertCommandSuccess(String)} except that the result box displays
+     * {@code expectedResultMessage} and the model related components equal to {@code expectedModel}.
+     * @see ColorEnableSystemTest # assertCommandSuccess(String)
      */
-    public static void assertCommandFailure(Command command, Model actualModel, String expectedMessage) {
-        // we are unable to defensively copy the model for comparison later, so we can
-        // only do so by copying its components.
-        AddressBook expectedAddressBook = new AddressBook(actualModel.getAddressBook());
-        List<ReadOnlyLesson> expectedFilteredList = new ArrayList<>(actualModel.getFilteredLessonList());
-
-        try {
-            command.execute();
-            fail("The expected CommandException was not thrown.");
-        } catch (CommandException e) {
-            assertEquals(expectedMessage, e.getMessage());
-            assertEquals(expectedAddressBook, actualModel.getAddressBook());
-            assertEquals(expectedFilteredList, actualModel.getFilteredLessonList());
-        }
+    private void assertCommandSuccess(String command, String expectedResultMessage, Model expectedModel) {
+        executeCommand(command);
+        assertApplicationDisplaysExpected("", expectedResultMessage, expectedModel);
+        assertCommandBoxShowsDefaultStyle();
+        assertStatusBarUnchanged();
     }
 
     /**
-     * Updates {@code model}'s filtered list to show only the first lesson in the {@code model}'s address book.
+     * Executes {@code command} and verifies that the command box displays {@code command}, the result display
+     * box displays {@code expectedResultMessage} and the model related components equal to the current model.
+     * These verifications are done by
+     * {@code AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)}.<br>
+     * Also verifies that the browser url, selected card and status bar remain unchanged, and the command box has the
+     * error style.
+     * @see AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)
      */
-    public static void showFirstLessonOnly(Model model) {
-        ReadOnlyLesson lesson = model.getAddressBook().getLessonList().get(0);
-        model.updateFilteredLessonList(new ShowSpecifiedLessonPredicate(lesson));
+    private void assertCommandFailure(String command, String expectedResultMessage) {
+        Model expectedModel = getModel();
 
-        assert model.getFilteredLessonList().size() == 1;
-    }
-
-    /**
-     * Deletes the first lesson in {@code model}'s filtered list from {@code model}'s address book.
-     */
-    public static void deleteFirstLesson(Model model) {
-        ReadOnlyLesson firstLesson = model.getFilteredLessonList().get(0);
-        try {
-            model.deleteLesson(firstLesson);
-        } catch (LessonNotFoundException pnfe) {
-            throw new AssertionError("Person in filtered list must exist in model.", pnfe);
-        }
+        executeCommand(command);
+        assertApplicationDisplaysExpected(command, expectedResultMessage, expectedModel);
+        assertSelectedCardUnchanged();
+        assertCommandBoxShowsErrorStyle();
+        assertStatusBarUnchanged();
     }
 }
 ```
-###### \java\seedu\address\logic\commands\EditPersonDescriptorTest.java
+###### /java/seedu/address/ui/CommandBoxTest.java
 ``` java
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+    @Test
+    public void configActiveKeywordTest() {
+        String commandKeyword = "list";
+        String commandColorTrue = "red";
+        String commandColorFalse = "black";
+        assertColorSame(commandColorTrue, commandKeyword);
+        assertColorNotSame(commandColorFalse, commandKeyword);
+    }
 
-import static seedu.address.logic.commands.CommandTestUtil.DESC_CS2101;
-import static seedu.address.logic.commands.CommandTestUtil.DESC_MA1101R;
-import static seedu.address.logic.commands.CommandTestUtil.VALID_CODE_CS2101;
-import static seedu.address.logic.commands.CommandTestUtil.VALID_GROUP_CS2101;
-import static seedu.address.logic.commands.CommandTestUtil.VALID_LECTURER_CS2101;
-import static seedu.address.logic.commands.CommandTestUtil.VALID_TIMESLOT_CS2101;
-import static seedu.address.logic.commands.CommandTestUtil.VALID_VENUE_CS2101;
-import static seedu.address.logic.commands.EditCommand.EditLessonDescriptor;
 
-import org.junit.Test;
+    private void assertColorSame(String commandColor, String commandKeyword) {
+        assertEquals(commandColor, keywordColorMap.get(commandKeyword));
+    }
 
-import seedu.address.testutil.EditLessonDescriptorBuilder;
+    private void assertColorNotSame(String commandColor, String commandKeyword) {
+        assertNotEquals(commandColor, keywordColorMap.get(commandKeyword));
+    }
+```
+###### /java/seedu/address/ui/LessonCardTest.java
+``` java
+public class LessonCardTest extends GuiUnitTest {
 
-public class EditPersonDescriptorTest {
+    @Test
+    public void display() {
+        // no tags
+        // Lesson lessonWithNoLecturers = new LessonBuilder().withLecturers(new String[0]).build();
+        // LessonListCard lessonListCard = new LessonListCard(lessonWithNoLecturers, 1);
+        // uiPartRule.setUiPart(lessonListCard);
+        // assertCardDisplay(lessonListCard, lessonWithNoLecturers, 1);
+
+        // with tags
+        Lesson lessonWithLecturers = new LessonBuilder().build();
+        LessonListCard lessonListCard = new LessonListCard(lessonWithLecturers, 2);
+        uiPartRule.setUiPart(lessonListCard);
+        assertCardDisplay(lessonListCard, lessonWithLecturers, 2);
+
+        // changes made to Lesson reflects on card
+        guiRobot.interact(() -> {
+            lessonWithLecturers.setCodeType(MA1101R_L1.getCode());
+            lessonWithLecturers.setClassType(MA1101R_L1.getClassType());
+            lessonWithLecturers.setLocation(MA1101R_L1.getLocation());
+            lessonWithLecturers.setGroupType(MA1101R_L1.getGroup());
+            lessonWithLecturers.setTimeSlot(MA1101R_L1.getTimeSlot());
+            lessonWithLecturers.setLecturers(MA1101R_L1.getLecturers());
+        });
+        assertCardDisplay(lessonListCard, lessonWithLecturers, 2);
+    }
 
     @Test
     public void equals() {
-        // same values -> returns true
-        EditCommand.EditLessonDescriptor descriptorWithSameValues = new EditLessonDescriptor(DESC_MA1101R);
-        assertTrue(DESC_MA1101R.equals(descriptorWithSameValues));
+        Lesson lesson = new LessonBuilder().build();
+        LessonListCard lessonListCard = new LessonListCard(lesson, 0);
+
+        // same lesson, same index -> returns true
+        LessonListCard copy = new LessonListCard(lesson, 0);
+        assertTrue(lessonListCard.equals(copy));
 
         // same object -> returns true
-        assertTrue(DESC_MA1101R.equals(DESC_MA1101R));
+        assertTrue(lessonListCard.equals(lessonListCard));
 
         // null -> returns false
-        assertFalse(DESC_MA1101R.equals(null));
+        assertFalse(lessonListCard.equals(null));
 
         // different types -> returns false
-        assertFalse(DESC_MA1101R.equals(5));
+        assertFalse(lessonListCard.equals(0));
 
-        // different values -> returns false
-        assertFalse(DESC_MA1101R.equals(DESC_CS2101));
+        // different lesson, same index -> returns false
+        Lesson differentLesson = new LessonBuilder().withCode("CS2101").build();
+        assertFalse(lessonListCard.equals(new LessonListCard(differentLesson, 0)));
 
-        // different module code -> returns false
-        EditLessonDescriptor editedAmy =
-                new EditLessonDescriptorBuilder(DESC_MA1101R).withCode(VALID_CODE_CS2101).build();
-        assertFalse(DESC_MA1101R.equals(editedAmy));
+        // same lesson, different index -> returns false
+        assertFalse(lessonListCard.equals(new LessonListCard(lesson, 1)));
+    }
 
-        // different class type -> returns false
-        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withCode(VALID_CODE_CS2101).build();
-        assertFalse(DESC_MA1101R.equals(editedAmy));
+    /**
+     * Asserts that {@code lessonListCard} displays the details of {@code expectedLesson} correctly and matches
+     * {@code expectedId}.
+     */
+    private void assertCardDisplay(LessonListCard lessonListCard, ReadOnlyLesson expectedLesson, int expectedId) {
+        guiRobot.pauseForHuman();
 
-        // different time slot -> returns false
-        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withTimeSlot(VALID_TIMESLOT_CS2101).build();
-        assertFalse(DESC_MA1101R.equals(editedAmy));
+        LessonCardHandle lessonCardHandle = new LessonCardHandle(lessonListCard.getRoot());
 
-        // different group -> returns false
-        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withGroup(VALID_GROUP_CS2101).build();
-        assertFalse(DESC_MA1101R.equals(editedAmy));
+        // verify id is displayed correctly
+        assertEquals(Integer.toString(expectedId) + ". ", lessonCardHandle.getId());
 
-        // different lecturer -> returns false
-        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withLecturers(VALID_LECTURER_CS2101).build();
-        assertFalse(DESC_MA1101R.equals(editedAmy));
-
-        // different location -> returns false
-        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withLocation(VALID_VENUE_CS2101).build();
-        assertFalse(DESC_MA1101R.equals(editedAmy));
+        // verify lesson details are displayed correctly
+        assertCardDisplaysLesson(expectedLesson, lessonCardHandle);
     }
 }
 ```
-###### \java\seedu\address\logic\parser\ColorKeywordCommandParserTest.java
+###### /java/seedu/address/logic/parser/ColorKeywordCommandParserTest.java
 ``` java
 public class ColorKeywordCommandParserTest {
     private ColorKeywordCommandParser parser = new ColorKeywordCommandParser();
@@ -264,7 +209,7 @@ public class ColorKeywordCommandParserTest {
     }
 }
 ```
-###### \java\seedu\address\logic\parser\ParserUtilTest.java
+###### /java/seedu/address/logic/parser/ParserUtilTest.java
 ``` java
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -484,7 +429,268 @@ public class ParserUtilTest {
     }
 }
 ```
-###### \java\seedu\address\model\AddressBookTest.java
+###### /java/seedu/address/logic/commands/CommandTestUtil.java
+``` java
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CLASS_TYPE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_FONT_SIZE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GROUP;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LECTURER;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_MODULE_CODE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TIME_SLOT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_VENUE;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.AddressBook;
+import seedu.address.model.Model;
+import seedu.address.model.module.Code;
+import seedu.address.model.module.ReadOnlyLesson;
+import seedu.address.model.module.exceptions.LessonNotFoundException;
+import seedu.address.model.module.predicates.FixedCodePredicate;
+import seedu.address.model.module.predicates.ShowSpecifiedLessonPredicate;
+import seedu.address.testutil.EditLessonDescriptorBuilder;
+
+/**
+ * Contains helper methods for testing commands.
+ */
+public class CommandTestUtil {
+
+    public static final String VALID_CODE_MA1101R = "MA1101R";
+    public static final String VALID_CODE_CS2101 = "CS2101";
+    public static final String VALID_CODE_MA1102R = "MA1102R";
+    public static final String VALID_CLASSTYPE_MA1101R = "Lec";
+    public static final String VALID_CLASSTYPE_CS2101 = "Tut";
+    public static final String VALID_VENUE_MA1101R = "LT30";
+    public static final String VALID_VENUE_MA1102R = "LT29";
+    public static final String VALID_VENUE_CS2101 = "COM02-04";
+    public static final String VALID_GROUP_MA1101R = "3";
+    public static final String VALID_GROUP_CS2101 = "2";
+    public static final String VALID_TIMESLOT_MA1101R = "TUE[1300-1500]";
+    public static final String VALID_TIMESLOT_CS2101 = "TUE[1600-1800]";
+    public static final String VALID_LECTURER_MA1101R = "Ma Siu Lun";
+    public static final String VALID_LECTURER_CS2101 = "Diana";
+    public static final String VALID_FONT_SIZE_XSMALL = "xsmall";
+    public static final String VALID_FONT_SIZE_SMALL = "small";
+    public static final String VALID_THEME_LIGHT = "light";
+    public static final String VALID_THEME_DARK = "dark";
+
+
+    public static final String CODE_DESC_MA1101R = " " + PREFIX_MODULE_CODE + VALID_CODE_MA1101R;
+    public static final String CODE_DESC_CS2101 = " " + PREFIX_MODULE_CODE + VALID_CODE_CS2101;
+    public static final String CLASSTYPE_DESC_MA1101R = " " + PREFIX_CLASS_TYPE + VALID_CLASSTYPE_MA1101R;
+    public static final String CLASSTYPE_DESC_CS2101 = " " + PREFIX_CLASS_TYPE + VALID_CLASSTYPE_CS2101;
+    public static final String VENUE_DESC_MA1101R = " " + PREFIX_VENUE + VALID_VENUE_MA1101R;
+    public static final String VENUE_DESC_CS2101 = " " + PREFIX_VENUE + VALID_VENUE_CS2101;
+    public static final String GROUP_DESC_MA1101R = " " + PREFIX_GROUP + VALID_GROUP_MA1101R;
+    public static final String GROUP_DESC_CS2101 = " " + PREFIX_GROUP + VALID_GROUP_CS2101;
+    public static final String TIMESLOT_DESC_MA1101R = " " + PREFIX_TIME_SLOT + VALID_TIMESLOT_MA1101R;
+    public static final String TIMESLOT_DESC_CS2101 = " " + PREFIX_TIME_SLOT + VALID_TIMESLOT_CS2101;
+    public static final String LECTURER_DESC_MA1101R = " " + PREFIX_LECTURER + VALID_LECTURER_MA1101R;
+    public static final String LECTURER_DESC_CS2101 = " " + PREFIX_LECTURER + VALID_LECTURER_CS2101;
+    public static final String FONT_SIZE_DESC_XSMALL = " " + PREFIX_FONT_SIZE + VALID_FONT_SIZE_XSMALL;
+    public static final String FONT_SIZE_DESC_SMALL = " " + PREFIX_FONT_SIZE + VALID_FONT_SIZE_SMALL;
+
+
+    public static final String INVALID_CODE_DESC = " " + PREFIX_MODULE_CODE + "MA*"; //code format is not correct
+    public static final String INVALID_CLASSTYPE_DESC = " " + PREFIX_CLASS_TYPE + "1a"; // 'a' not allowed in class type
+    public static final String INVALID_VENUE_DESC = " " + PREFIX_VENUE; // empty string not allowed for venue
+    public static final String INVALID_GROUP_DESC = " " + PREFIX_GROUP + "SL1"; // 'SL' not allowed for addresses
+    public static final String INVALID_TIMESLOT_DESC = " " + PREFIX_TIME_SLOT + "FRIDAY[1200-1300]"; // Only 3 letters
+    public static final String INVALID_LECTURER_DESC = " " + PREFIX_LECTURER + ""; // '*' not allowed in tags
+    public static final String INVALID_FONT_SIZE_DESC = " " + PREFIX_FONT_SIZE
+            + "small!"; // '!' not allowed in font size
+    public static final String INVALID_THEME_DESC = "blue";
+
+    public static final EditCommand.EditLessonDescriptor DESC_MA1101R;
+    public static final EditCommand.EditLessonDescriptor DESC_CS2101;
+
+    public static final FixedCodePredicate MA1101R_CODE_PREDICATE;
+
+    static {
+        DESC_MA1101R = new EditLessonDescriptorBuilder().withCode(VALID_CODE_MA1101R)
+                .withClassType(VALID_CLASSTYPE_MA1101R).withLocation(VALID_VENUE_MA1101R).withGroup(VALID_GROUP_MA1101R)
+                .withTimeSlot(VALID_TIMESLOT_MA1101R).withLecturers(VALID_LECTURER_MA1101R).build();
+        DESC_CS2101 = new EditLessonDescriptorBuilder().withCode(VALID_CODE_CS2101)
+                .withClassType(VALID_CLASSTYPE_CS2101).withLocation(VALID_VENUE_CS2101).withGroup(VALID_GROUP_CS2101)
+                .withTimeSlot(VALID_TIMESLOT_CS2101).withLecturers(VALID_LECTURER_CS2101).build();
+        try {
+            MA1101R_CODE_PREDICATE = new FixedCodePredicate(new Code(VALID_CODE_MA1101R));
+        } catch (IllegalValueException e) {
+            throw new AssertionError("The code cannot be invalid");
+        }
+    }
+
+    /**
+     * Executes the given {@code command}, confirms that <br>
+     * - the result message matches {@code expectedMessage} <br>
+     * - the {@code actualModel} matches {@code expectedModel}
+     */
+    public static void assertCommandSuccess(Command command, Model actualModel, String expectedMessage,
+            Model expectedModel) {
+        try {
+            CommandResult result = command.execute();
+            assertEquals(expectedMessage, result.feedbackToUser);
+            assertEquals(expectedModel, actualModel);
+        } catch (CommandException ce) {
+            throw new AssertionError("Execution of command should not fail.", ce);
+        }
+    }
+
+    /**
+     * Executes the given {@code command}, confirms that <br>
+     * - a {@code CommandException} is thrown <br>
+     * - the CommandException message matches {@code expectedMessage} <br>
+     * - the address book and the filtered person list in the {@code actualModel} remain unchanged
+     */
+    public static void assertCommandFailure(Command command, Model actualModel, String expectedMessage) {
+        // we are unable to defensively copy the model for comparison later, so we can
+        // only do so by copying its components.
+        AddressBook expectedAddressBook = new AddressBook(actualModel.getAddressBook());
+        List<ReadOnlyLesson> expectedFilteredList = new ArrayList<>(actualModel.getFilteredLessonList());
+
+        try {
+            command.execute();
+            fail("The expected CommandException was not thrown.");
+        } catch (CommandException e) {
+            assertEquals(expectedMessage, e.getMessage());
+            assertEquals(expectedAddressBook, actualModel.getAddressBook());
+            assertEquals(expectedFilteredList, actualModel.getFilteredLessonList());
+        }
+    }
+
+    /**
+     * Updates {@code model}'s filtered list to show only the first lesson in the {@code model}'s address book.
+     */
+    public static void showFirstLessonOnly(Model model) {
+        ReadOnlyLesson lesson = model.getAddressBook().getLessonList().get(0);
+        model.updateFilteredLessonList(new ShowSpecifiedLessonPredicate(lesson));
+
+        assert model.getFilteredLessonList().size() == 1;
+    }
+
+    /**
+     * Deletes the first lesson in {@code model}'s filtered list from {@code model}'s address book.
+     */
+    public static void deleteFirstLesson(Model model) {
+        ReadOnlyLesson firstLesson = model.getFilteredLessonList().get(0);
+        try {
+            model.deleteLesson(firstLesson);
+        } catch (LessonNotFoundException pnfe) {
+            throw new AssertionError("Person in filtered list must exist in model.", pnfe);
+        }
+    }
+}
+```
+###### /java/seedu/address/logic/commands/EditPersonDescriptorTest.java
+``` java
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import static seedu.address.logic.commands.CommandTestUtil.DESC_CS2101;
+import static seedu.address.logic.commands.CommandTestUtil.DESC_MA1101R;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_CODE_CS2101;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_GROUP_CS2101;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_LECTURER_CS2101;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_TIMESLOT_CS2101;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_VENUE_CS2101;
+import static seedu.address.logic.commands.EditCommand.EditLessonDescriptor;
+
+import org.junit.Test;
+
+import seedu.address.testutil.EditLessonDescriptorBuilder;
+
+public class EditPersonDescriptorTest {
+
+    @Test
+    public void equals() {
+        // same values -> returns true
+        EditCommand.EditLessonDescriptor descriptorWithSameValues = new EditLessonDescriptor(DESC_MA1101R);
+        assertTrue(DESC_MA1101R.equals(descriptorWithSameValues));
+
+        // same object -> returns true
+        assertTrue(DESC_MA1101R.equals(DESC_MA1101R));
+
+        // null -> returns false
+        assertFalse(DESC_MA1101R.equals(null));
+
+        // different types -> returns false
+        assertFalse(DESC_MA1101R.equals(5));
+
+        // different values -> returns false
+        assertFalse(DESC_MA1101R.equals(DESC_CS2101));
+
+        // different module code -> returns false
+        EditLessonDescriptor editedAmy =
+                new EditLessonDescriptorBuilder(DESC_MA1101R).withCode(VALID_CODE_CS2101).build();
+        assertFalse(DESC_MA1101R.equals(editedAmy));
+
+        // different class type -> returns false
+        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withCode(VALID_CODE_CS2101).build();
+        assertFalse(DESC_MA1101R.equals(editedAmy));
+
+        // different time slot -> returns false
+        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withTimeSlot(VALID_TIMESLOT_CS2101).build();
+        assertFalse(DESC_MA1101R.equals(editedAmy));
+
+        // different group -> returns false
+        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withGroup(VALID_GROUP_CS2101).build();
+        assertFalse(DESC_MA1101R.equals(editedAmy));
+
+        // different lecturer -> returns false
+        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withLecturers(VALID_LECTURER_CS2101).build();
+        assertFalse(DESC_MA1101R.equals(editedAmy));
+
+        // different location -> returns false
+        editedAmy = new EditLessonDescriptorBuilder(DESC_MA1101R).withLocation(VALID_VENUE_CS2101).build();
+        assertFalse(DESC_MA1101R.equals(editedAmy));
+    }
+}
+```
+###### /java/seedu/address/logic/commands/ColorKeywordCommandTest.java
+``` java
+public class ColorKeywordCommandTest {
+
+    @Rule
+    public final EventsCollectorRule eventsCollectorRule = new EventsCollectorRule();
+
+    @Test
+    public void execute_enableColorCommand_success() {
+        CommandResult result = new ColorKeywordCommand("enable").execute();
+        assertEquals(ENABLE_COLOR + MESSAGE_SUCCESS, result.feedbackToUser);
+        assertTrue(eventsCollectorRule.eventsCollector.getMostRecent() instanceof ColorKeywordEvent);
+        assertTrue(eventsCollectorRule.eventsCollector.getSize() == 1);
+    }
+
+    @Test
+    public void execute_disableColorCommand_success() {
+        CommandResult result = new ColorKeywordCommand("disable").execute();
+        assertEquals(DISABLE_COLOR + MESSAGE_SUCCESS, result.feedbackToUser);
+        assertTrue(eventsCollectorRule.eventsCollector.getMostRecent() instanceof ColorKeywordEvent);
+        assertTrue(eventsCollectorRule.eventsCollector.getSize() == 1);
+    }
+
+}
+```
+###### /java/seedu/address/model/UniqueLecturerListTest.java
+``` java
+public class UniqueLecturerListTest {
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    @Test
+    public void asObservableList_modifyList_throwsUnsupportedOperationException() {
+        UniqueLecturerList uniqueLecturerList = new UniqueLecturerList();
+        thrown.expect(UnsupportedOperationException.class);
+        uniqueLecturerList.asObservableList().remove(0);
+    }
+}
+```
+###### /java/seedu/address/model/AddressBookTest.java
 ``` java
 public class AddressBookTest {
 
@@ -568,118 +774,7 @@ public class AddressBookTest {
 
 }
 ```
-###### \java\seedu\address\model\lesson\ClassTypeTest.java
-``` java
-public class ClassTypeTest {
-
-    @Test
-    public void isValidClassType() {
-        // invalid addresses
-        assertFalse(ClassType.isValidClassType("")); // empty string
-        assertFalse(ClassType.isValidClassType(" ")); // spaces only
-        assertFalse(ClassType.isValidClassType("Lecture")); // spell out 'lecture'
-        assertFalse(ClassType.isValidClassType("Tutorial")); // spell out 'Tutorial'
-
-
-        // valid addresses
-        assertTrue(ClassType.isValidClassType("lec"));
-        assertTrue(ClassType.isValidClassType("Lec")); // One capital character
-        assertTrue(ClassType.isValidClassType("LEc")); // Two capital characters
-        assertTrue(ClassType.isValidClassType("LEC")); // Three capital characters
-
-        assertTrue(ClassType.isValidClassType("tut"));
-        assertTrue(ClassType.isValidClassType("Tut")); // One capital character
-        assertTrue(ClassType.isValidClassType("TUt")); // Two capital characters
-        assertTrue(ClassType.isValidClassType("TUT")); // Three capital characters
-    }
-}
-```
-###### \java\seedu\address\model\lesson\CodeTest.java
-``` java
-public class CodeTest {
-    @Test
-    public void isValidCode() {
-        // invalid name
-        assertFalse(Code.isValidCode("")); // empty string
-        assertFalse(Code.isValidCode(" ")); // spaces only
-        assertFalse(Code.isValidCode("C2101")); // contains only 1 letter
-        assertFalse(Code.isValidCode("CS")); // no digit
-        assertFalse(Code.isValidCode("CS*")); // contains non-alphanumeric characters
-        assertFalse(Code.isValidCode("CS221")); // contains only 3 digits
-        assertFalse(Code.isValidCode("2101")); // contains only digit
-        assertFalse(Code.isValidCode("2101")); // contains only digit
-        assertFalse(Code.isValidCode("GEQR221")); // contains 4 letters
-
-        // valid name
-        assertTrue(Code.isValidCode("CS2101")); // 2 letters and 4 digits
-        assertTrue(Code.isValidCode("cs2101")); // all small letter for
-
-        assertTrue(Code.isValidCode("MA1101R")); // 2 letters, 4 digits and 1 letter
-        assertTrue(Code.isValidCode("ma1101R")); // last letter is capital
-        assertTrue(Code.isValidCode("ma1101r")); // all small letter
-        assertTrue(Code.isValidCode("Ma1101r")); // first letter is capital
-
-        assertTrue(Code.isValidCode("GEQ1000")); // 3 letters and 4 digits
-        assertTrue(Code.isValidCode("geq1000")); // all small letter for
-    }
-}
-```
-###### \java\seedu\address\model\lesson\GroupTest.java
-``` java
-public class GroupTest {
-
-    @Test
-    public void isValidGroup() {
-        // invalid phone numbers
-        assertFalse(Group.isValidGroup("")); // empty string
-        assertFalse(Group.isValidGroup(" ")); // spaces only
-        assertFalse(Group.isValidGroup("phone")); // non-numeric
-        assertFalse(Group.isValidGroup("9011p041")); // alphabets within digits
-        assertFalse(Group.isValidGroup("9312 1534")); // spaces within digits
-
-        // valid phone numbers
-        assertTrue(Group.isValidGroup("9")); // exactly 1 numbers
-        assertTrue(Group.isValidGroup("93121534")); //more than 1 number
-        assertTrue(Group.isValidGroup("124293842033123")); // long phone numbers
-    }
-}
-```
-###### \java\seedu\address\model\lesson\LocationTest.java
-``` java
-public class LocationTest {
-    @Test
-    public void isValidLocation() {
-        // invalid addresses
-        assertFalse(Location.isValidLocation("")); // empty string
-        assertFalse(Location.isValidLocation(" ")); // spaces only
-
-        // valid addresses
-        assertTrue(Location.isValidLocation("COM2 02-03"));
-        assertTrue(Location.isValidLocation("LT29")); // No space
-        assertTrue(Location.isValidLocation("NUS SOC COM2 02-05")); // long address
-    }
-}
-```
-###### \java\seedu\address\model\lesson\TimeSlotTest.java
-``` java
-public class TimeSlotTest {
-    @Test
-    public void isValidTimeSlot() {
-        // invalid phone numbers
-        assertFalse(TimeSlot.isValidTimeSLot("")); // empty string
-        assertFalse(TimeSlot.isValidTimeSLot(" ")); // spaces only
-        assertFalse(TimeSlot.isValidTimeSLot("FRI")); // no '['
-        assertFalse(TimeSlot.isValidTimeSLot("FRI[]")); // no start time and end time
-        assertFalse(TimeSlot.isValidTimeSLot("FRI[1000]")); // no end time
-        assertFalse(TimeSlot.isValidTimeSLot("FRI[10001200]")); // no '-'
-        assertFalse(TimeSlot.isValidTimeSLot("FRI[1200-1000]")); // start time less than end time
-
-        // valid phone numbers
-        assertTrue(TimeSlot.isValidTimeSLot("FRI[1000-1200]")); // Must follow this format
-    }
-}
-```
-###### \java\seedu\address\model\ModelManagerTest.java
+###### /java/seedu/address/model/ModelManagerTest.java
 ``` java
 public class ModelManagerTest {
     @Rule
@@ -732,21 +827,7 @@ public class ModelManagerTest {
     }
 }
 ```
-###### \java\seedu\address\model\UniqueLecturerListTest.java
-``` java
-public class UniqueLecturerListTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Test
-    public void asObservableList_modifyList_throwsUnsupportedOperationException() {
-        UniqueLecturerList uniqueLecturerList = new UniqueLecturerList();
-        thrown.expect(UnsupportedOperationException.class);
-        uniqueLecturerList.asObservableList().remove(0);
-    }
-}
-```
-###### \java\seedu\address\model\UniqueLessonListTest.java
+###### /java/seedu/address/model/UniqueLessonListTest.java
 ``` java
 public class UniqueLessonListTest {
     @Rule
@@ -760,163 +841,118 @@ public class UniqueLessonListTest {
     }
 }
 ```
-###### \java\seedu\address\testutil\AddressBookBuilder.java
+###### /java/seedu/address/model/lesson/TimeSlotTest.java
 ``` java
-/**
- * A utility class to help with building Addressbook objects.
- * Example usage: <br>
- *     {@code AddressBook ab = new AddressBookBuilder().withLesson("MA1101R").withLecturer("Dr Tan").build();}
- */
-public class AddressBookBuilder {
+public class TimeSlotTest {
+    @Test
+    public void isValidTimeSlot() {
+        // invalid phone numbers
+        assertFalse(TimeSlot.isValidTimeSLot("")); // empty string
+        assertFalse(TimeSlot.isValidTimeSLot(" ")); // spaces only
+        assertFalse(TimeSlot.isValidTimeSLot("FRI")); // no '['
+        assertFalse(TimeSlot.isValidTimeSLot("FRI[]")); // no start time and end time
+        assertFalse(TimeSlot.isValidTimeSLot("FRI[1000]")); // no end time
+        assertFalse(TimeSlot.isValidTimeSLot("FRI[10001200]")); // no '-'
+        assertFalse(TimeSlot.isValidTimeSLot("FRI[1200-1000]")); // start time less than end time
 
-    private AddressBook addressBook;
-
-    public AddressBookBuilder() {
-        addressBook = new AddressBook();
-    }
-
-    public AddressBookBuilder(AddressBook addressBook) {
-        this.addressBook = addressBook;
-    }
-
-    /**
-     * Adds a new {@code Lesson} to the {@code AddressBook} that we are building.
-     */
-    public AddressBookBuilder withLesson(ReadOnlyLesson lesson) {
-        try {
-            addressBook.addLesson(lesson);
-        } catch (DuplicateLessonException dpe) {
-            throw new IllegalArgumentException("lesson is expected to be unique.");
-        }
-        return this;
-    }
-
-    /**
-     * Parses {@code tagName} into a {@code Tag} and adds it to the {@code AddressBook} that we are building.
-     */
-    public AddressBookBuilder withLecturer(String lecturerName) {
-        try {
-            addressBook.addLecturer(new Lecturer(lecturerName));
-        } catch (IllegalValueException ive) {
-            throw new IllegalArgumentException("lecturerName is expected to be valid.");
-        }
-        return this;
-    }
-
-    public AddressBook build() {
-        return addressBook;
+        // valid phone numbers
+        assertTrue(TimeSlot.isValidTimeSLot("FRI[1000-1200]")); // Must follow this format
     }
 }
 ```
-###### \java\seedu\address\testutil\EditLessonDescriptorBuilder.java
+###### /java/seedu/address/model/lesson/LocationTest.java
 ``` java
-/**
- * A utility class to help with building EditPersonDescriptor objects.
- */
-public class EditLessonDescriptorBuilder {
+public class LocationTest {
+    @Test
+    public void isValidLocation() {
+        // invalid addresses
+        assertFalse(Location.isValidLocation("")); // empty string
+        assertFalse(Location.isValidLocation(" ")); // spaces only
 
-    private EditLessonDescriptor descriptor;
-
-    public EditLessonDescriptorBuilder() {
-        descriptor = new EditLessonDescriptor();
-    }
-
-    public EditLessonDescriptorBuilder(EditLessonDescriptor descriptor) {
-        this.descriptor = new EditLessonDescriptor(descriptor);
-    }
-
-    /**
-     * Returns an {@code EditPersonDescriptor} with fields containing {@code person}'s details
-     */
-    public EditLessonDescriptorBuilder(ReadOnlyLesson lesson) {
-        descriptor = new EditLessonDescriptor();
-        descriptor.setCode(lesson.getCode());
-        descriptor.setClassType(lesson.getClassType());
-        descriptor.setLocation(lesson.getLocation());
-        descriptor.setGroup(lesson.getGroup());
-        descriptor.setTimeSlot(lesson.getTimeSlot());
-        descriptor.setLecturer(lesson.getLecturers());
-    }
-
-    /**
-     * Sets the {@code Name} of the {@code EditPersonDescriptor} that we are building.
-     */
-    public EditLessonDescriptorBuilder withCode(String name) {
-        try {
-            ParserUtil.parseCode(Optional.of(name)).ifPresent(descriptor::setCode);
-        } catch (IllegalValueException ive) {
-            throw new IllegalArgumentException("name is expected to be unique.");
-        }
-        return this;
-    }
-
-    /**
-     * Sets the {@code Phone} of the {@code EditPersonDescriptor} that we are building.
-     */
-    public EditLessonDescriptorBuilder withClassType(String phone) {
-        try {
-            ParserUtil.parseClassType(Optional.of(phone)).ifPresent(descriptor::setClassType);
-        } catch (IllegalValueException ive) {
-            throw new IllegalArgumentException("phone is expected to be unique.");
-        }
-        return this;
-    }
-
-    /**
-     * Sets the {@code Email} of the {@code EditPersonDescriptor} that we are building.
-     */
-    public EditLessonDescriptorBuilder withLocation(String email) {
-        try {
-            ParserUtil.parseLocation(Optional.of(email)).ifPresent(descriptor::setLocation);
-        } catch (IllegalValueException ive) {
-            throw new IllegalArgumentException("email is expected to be unique.");
-        }
-        return this;
-    }
-
-    /**
-     * Sets the {@code Address} of the {@code EditPersonDescriptor} that we are building.
-     */
-    public EditLessonDescriptorBuilder withGroup(String address) {
-        try {
-            ParserUtil.parseGroup(Optional.of(address)).ifPresent(descriptor::setGroup);
-        } catch (IllegalValueException ive) {
-            throw new IllegalArgumentException("address is expected to be unique.");
-        }
-        return this;
-    }
-
-    /**
-     * Sets the {@code Address} of the {@code EditPersonDescriptor} that we are building.
-     */
-    public EditLessonDescriptorBuilder withTimeSlot(String address) {
-        try {
-            ParserUtil.parseTimeSlot(Optional.of(address)).ifPresent(descriptor::setTimeSlot);
-        } catch (IllegalValueException ive) {
-            throw new IllegalArgumentException("address is expected to be unique.");
-        }
-        return this;
-    }
-
-    /**
-     * Parses the {@code tags} into a {@code Set<Tag>} and set it to the {@code EditPersonDescriptor}
-     * that we are building.
-     */
-    public EditLessonDescriptorBuilder withLecturers(String... tags) {
-        try {
-            descriptor.setLecturer(ParserUtil.parseLecturer(Arrays.asList(tags)));
-        } catch (IllegalValueException ive) {
-            throw new IllegalArgumentException("tags are expected to be unique.");
-        }
-        return this;
-    }
-
-    public EditLessonDescriptor build() {
-        return descriptor;
+        // valid addresses
+        assertTrue(Location.isValidLocation("COM2 02-03"));
+        assertTrue(Location.isValidLocation("LT29")); // No space
+        assertTrue(Location.isValidLocation("NUS SOC COM2 02-05")); // long address
     }
 }
 ```
-###### \java\seedu\address\testutil\LessonBuilder.java
+###### /java/seedu/address/model/lesson/ClassTypeTest.java
+``` java
+public class ClassTypeTest {
+
+    @Test
+    public void isValidClassType() {
+        // invalid addresses
+        assertFalse(ClassType.isValidClassType("")); // empty string
+        assertFalse(ClassType.isValidClassType(" ")); // spaces only
+        assertFalse(ClassType.isValidClassType("Lecture")); // spell out 'lecture'
+        assertFalse(ClassType.isValidClassType("Tutorial")); // spell out 'Tutorial'
+
+
+        // valid addresses
+        assertTrue(ClassType.isValidClassType("lec"));
+        assertTrue(ClassType.isValidClassType("Lec")); // One capital character
+        assertTrue(ClassType.isValidClassType("LEc")); // Two capital characters
+        assertTrue(ClassType.isValidClassType("LEC")); // Three capital characters
+
+        assertTrue(ClassType.isValidClassType("tut"));
+        assertTrue(ClassType.isValidClassType("Tut")); // One capital character
+        assertTrue(ClassType.isValidClassType("TUt")); // Two capital characters
+        assertTrue(ClassType.isValidClassType("TUT")); // Three capital characters
+    }
+}
+```
+###### /java/seedu/address/model/lesson/GroupTest.java
+``` java
+public class GroupTest {
+
+    @Test
+    public void isValidGroup() {
+        // invalid phone numbers
+        assertFalse(Group.isValidGroup("")); // empty string
+        assertFalse(Group.isValidGroup(" ")); // spaces only
+        assertFalse(Group.isValidGroup("phone")); // non-numeric
+        assertFalse(Group.isValidGroup("9011p041")); // alphabets within digits
+        assertFalse(Group.isValidGroup("9312 1534")); // spaces within digits
+
+        // valid phone numbers
+        assertTrue(Group.isValidGroup("9")); // exactly 1 numbers
+        assertTrue(Group.isValidGroup("93121534")); //more than 1 number
+        assertTrue(Group.isValidGroup("124293842033123")); // long phone numbers
+    }
+}
+```
+###### /java/seedu/address/model/lesson/CodeTest.java
+``` java
+public class CodeTest {
+    @Test
+    public void isValidCode() {
+        // invalid name
+        assertFalse(Code.isValidCode("")); // empty string
+        assertFalse(Code.isValidCode(" ")); // spaces only
+        assertFalse(Code.isValidCode("C2101")); // contains only 1 letter
+        assertFalse(Code.isValidCode("CS")); // no digit
+        assertFalse(Code.isValidCode("CS*")); // contains non-alphanumeric characters
+        assertFalse(Code.isValidCode("CS221")); // contains only 3 digits
+        assertFalse(Code.isValidCode("2101")); // contains only digit
+        assertFalse(Code.isValidCode("2101")); // contains only digit
+        assertFalse(Code.isValidCode("GEQR221")); // contains 4 letters
+
+        // valid name
+        assertTrue(Code.isValidCode("CS2101")); // 2 letters and 4 digits
+        assertTrue(Code.isValidCode("cs2101")); // all small letter for
+
+        assertTrue(Code.isValidCode("MA1101R")); // 2 letters, 4 digits and 1 letter
+        assertTrue(Code.isValidCode("ma1101R")); // last letter is capital
+        assertTrue(Code.isValidCode("ma1101r")); // all small letter
+        assertTrue(Code.isValidCode("Ma1101r")); // first letter is capital
+
+        assertTrue(Code.isValidCode("GEQ1000")); // 3 letters and 4 digits
+        assertTrue(Code.isValidCode("geq1000")); // all small letter for
+    }
+}
+```
+###### /java/seedu/address/testutil/LessonBuilder.java
 ``` java
 /**
  * A utility class to help with building Lesson objects.
@@ -1048,7 +1084,7 @@ public class LessonBuilder {
 
 }
 ```
-###### \java\seedu\address\testutil\LessonUtil.java
+###### /java/seedu/address/testutil/LessonUtil.java
 ``` java
 /**
  * A utility class for Lesson.
@@ -1080,36 +1116,163 @@ public class LessonUtil {
     }
 }
 ```
-###### \java\seedu\address\testutil\TypicalLessonComponents.java
+###### /java/seedu/address/testutil/EditLessonDescriptorBuilder.java
 ``` java
 /**
- * A utility class containing a list of {@code LessonComponent} objects to be used in tests.
+ * A utility class to help with building EditPersonDescriptor objects.
  */
-public class TypicalLessonComponents {
+public class EditLessonDescriptorBuilder {
 
-    public static final Code MA1101R = initCode("MA1101R");
-    public static final Code CS2101 = initCode("CS2101");
-    public static final Code GEQ1000 = initCode("GEQ1000");
+    private EditLessonDescriptor descriptor;
 
-    /**
-     * This method init Code
-     * @param name
-     * @return
-     */
-    private static Code initCode(String name) {
-        Code code = null;
-        try {
-            code = new Code(name);
-        } catch (IllegalValueException e) {
-            e.printStackTrace();
-        }
-        return code;
+    public EditLessonDescriptorBuilder() {
+        descriptor = new EditLessonDescriptor();
     }
 
+    public EditLessonDescriptorBuilder(EditLessonDescriptor descriptor) {
+        this.descriptor = new EditLessonDescriptor(descriptor);
+    }
 
+    /**
+     * Returns an {@code EditPersonDescriptor} with fields containing {@code person}'s details
+     */
+    public EditLessonDescriptorBuilder(ReadOnlyLesson lesson) {
+        descriptor = new EditLessonDescriptor();
+        descriptor.setCode(lesson.getCode());
+        descriptor.setClassType(lesson.getClassType());
+        descriptor.setLocation(lesson.getLocation());
+        descriptor.setGroup(lesson.getGroup());
+        descriptor.setTimeSlot(lesson.getTimeSlot());
+        descriptor.setLecturer(lesson.getLecturers());
+    }
+
+    /**
+     * Sets the {@code Name} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditLessonDescriptorBuilder withCode(String name) {
+        try {
+            ParserUtil.parseCode(Optional.of(name)).ifPresent(descriptor::setCode);
+        } catch (IllegalValueException ive) {
+            throw new IllegalArgumentException("name is expected to be unique.");
+        }
+        return this;
+    }
+
+    /**
+     * Sets the {@code Phone} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditLessonDescriptorBuilder withClassType(String phone) {
+        try {
+            ParserUtil.parseClassType(Optional.of(phone)).ifPresent(descriptor::setClassType);
+        } catch (IllegalValueException ive) {
+            throw new IllegalArgumentException("phone is expected to be unique.");
+        }
+        return this;
+    }
+
+    /**
+     * Sets the {@code Email} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditLessonDescriptorBuilder withLocation(String email) {
+        try {
+            ParserUtil.parseLocation(Optional.of(email)).ifPresent(descriptor::setLocation);
+        } catch (IllegalValueException ive) {
+            throw new IllegalArgumentException("email is expected to be unique.");
+        }
+        return this;
+    }
+
+    /**
+     * Sets the {@code Address} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditLessonDescriptorBuilder withGroup(String address) {
+        try {
+            ParserUtil.parseGroup(Optional.of(address)).ifPresent(descriptor::setGroup);
+        } catch (IllegalValueException ive) {
+            throw new IllegalArgumentException("address is expected to be unique.");
+        }
+        return this;
+    }
+
+    /**
+     * Sets the {@code Address} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditLessonDescriptorBuilder withTimeSlot(String address) {
+        try {
+            ParserUtil.parseTimeSlot(Optional.of(address)).ifPresent(descriptor::setTimeSlot);
+        } catch (IllegalValueException ive) {
+            throw new IllegalArgumentException("address is expected to be unique.");
+        }
+        return this;
+    }
+
+    /**
+     * Parses the {@code tags} into a {@code Set<Tag>} and set it to the {@code EditPersonDescriptor}
+     * that we are building.
+     */
+    public EditLessonDescriptorBuilder withLecturers(String... tags) {
+        try {
+            descriptor.setLecturer(ParserUtil.parseLecturer(Arrays.asList(tags)));
+        } catch (IllegalValueException ive) {
+            throw new IllegalArgumentException("tags are expected to be unique.");
+        }
+        return this;
+    }
+
+    public EditLessonDescriptor build() {
+        return descriptor;
+    }
 }
 ```
-###### \java\seedu\address\testutil\TypicalLessons.java
+###### /java/seedu/address/testutil/AddressBookBuilder.java
+``` java
+/**
+ * A utility class to help with building Addressbook objects.
+ * Example usage: <br>
+ *     {@code AddressBook ab = new AddressBookBuilder().withLesson("MA1101R").withLecturer("Dr Tan").build();}
+ */
+public class AddressBookBuilder {
+
+    private AddressBook addressBook;
+
+    public AddressBookBuilder() {
+        addressBook = new AddressBook();
+    }
+
+    public AddressBookBuilder(AddressBook addressBook) {
+        this.addressBook = addressBook;
+    }
+
+    /**
+     * Adds a new {@code Lesson} to the {@code AddressBook} that we are building.
+     */
+    public AddressBookBuilder withLesson(ReadOnlyLesson lesson) {
+        try {
+            addressBook.addLesson(lesson);
+        } catch (DuplicateLessonException dpe) {
+            throw new IllegalArgumentException("lesson is expected to be unique.");
+        }
+        return this;
+    }
+
+    /**
+     * Parses {@code tagName} into a {@code Tag} and adds it to the {@code AddressBook} that we are building.
+     */
+    public AddressBookBuilder withLecturer(String lecturerName) {
+        try {
+            addressBook.addLecturer(new Lecturer(lecturerName));
+        } catch (IllegalValueException ive) {
+            throw new IllegalArgumentException("lecturerName is expected to be valid.");
+        }
+        return this;
+    }
+
+    public AddressBook build() {
+        return addressBook;
+    }
+}
+```
+###### /java/seedu/address/testutil/TypicalLessons.java
 ``` java
 /**
  * A utility class containing a list of {@code Person} objects to be used in tests.
@@ -1201,195 +1364,32 @@ public class TypicalLessons {
     }
 }
 ```
-###### \java\seedu\address\ui\CommandBoxTest.java
+###### /java/seedu/address/testutil/TypicalLessonComponents.java
 ``` java
-    @Test
-    public void configActiveKeywordTest() {
-        String commandKeyword = "list";
-        String commandColorTrue = "red";
-        String commandColorFalse = "black";
-        assertColorSame(commandColorTrue, commandKeyword);
-        assertColorNotSame(commandColorFalse, commandKeyword);
-    }
+/**
+ * A utility class containing a list of {@code LessonComponent} objects to be used in tests.
+ */
+public class TypicalLessonComponents {
 
-
-    private void assertColorSame(String commandColor, String commandKeyword) {
-        assertEquals(commandColor, keywordColorMap.get(commandKeyword));
-    }
-
-    private void assertColorNotSame(String commandColor, String commandKeyword) {
-        assertNotEquals(commandColor, keywordColorMap.get(commandKeyword));
-    }
-```
-###### \java\seedu\address\ui\LessonCardTest.java
-``` java
-public class LessonCardTest extends GuiUnitTest {
-
-    @Test
-    public void display() {
-        // no tags
-        // Lesson lessonWithNoLecturers = new LessonBuilder().withLecturers(new String[0]).build();
-        // LessonListCard lessonListCard = new LessonListCard(lessonWithNoLecturers, 1);
-        // uiPartRule.setUiPart(lessonListCard);
-        // assertCardDisplay(lessonListCard, lessonWithNoLecturers, 1);
-
-        // with tags
-        Lesson lessonWithLecturers = new LessonBuilder().build();
-        LessonListCard lessonListCard = new LessonListCard(lessonWithLecturers, 2);
-        uiPartRule.setUiPart(lessonListCard);
-        assertCardDisplay(lessonListCard, lessonWithLecturers, 2);
-
-        // changes made to Lesson reflects on card
-        guiRobot.interact(() -> {
-            lessonWithLecturers.setCodeType(MA1101R_L1.getCode());
-            lessonWithLecturers.setClassType(MA1101R_L1.getClassType());
-            lessonWithLecturers.setLocation(MA1101R_L1.getLocation());
-            lessonWithLecturers.setGroupType(MA1101R_L1.getGroup());
-            lessonWithLecturers.setTimeSlot(MA1101R_L1.getTimeSlot());
-            lessonWithLecturers.setLecturers(MA1101R_L1.getLecturers());
-        });
-        assertCardDisplay(lessonListCard, lessonWithLecturers, 2);
-    }
-
-    @Test
-    public void equals() {
-        Lesson lesson = new LessonBuilder().build();
-        LessonListCard lessonListCard = new LessonListCard(lesson, 0);
-
-        // same lesson, same index -> returns true
-        LessonListCard copy = new LessonListCard(lesson, 0);
-        assertTrue(lessonListCard.equals(copy));
-
-        // same object -> returns true
-        assertTrue(lessonListCard.equals(lessonListCard));
-
-        // null -> returns false
-        assertFalse(lessonListCard.equals(null));
-
-        // different types -> returns false
-        assertFalse(lessonListCard.equals(0));
-
-        // different lesson, same index -> returns false
-        Lesson differentLesson = new LessonBuilder().withCode("CS2101").build();
-        assertFalse(lessonListCard.equals(new LessonListCard(differentLesson, 0)));
-
-        // same lesson, different index -> returns false
-        assertFalse(lessonListCard.equals(new LessonListCard(lesson, 1)));
-    }
+    public static final Code MA1101R = initCode("MA1101R");
+    public static final Code CS2101 = initCode("CS2101");
+    public static final Code GEQ1000 = initCode("GEQ1000");
 
     /**
-     * Asserts that {@code lessonListCard} displays the details of {@code expectedLesson} correctly and matches
-     * {@code expectedId}.
+     * This method init Code
+     * @param name
+     * @return
      */
-    private void assertCardDisplay(LessonListCard lessonListCard, ReadOnlyLesson expectedLesson, int expectedId) {
-        guiRobot.pauseForHuman();
-
-        LessonCardHandle lessonCardHandle = new LessonCardHandle(lessonListCard.getRoot());
-
-        // verify id is displayed correctly
-        assertEquals(Integer.toString(expectedId) + ". ", lessonCardHandle.getId());
-
-        // verify lesson details are displayed correctly
-        assertCardDisplaysLesson(expectedLesson, lessonCardHandle);
-    }
-}
-```
-###### \java\systemtests\ColorEnableSystemTest.java
-``` java
-public class ColorEnableSystemTest extends AddressBookSystemTest {
-    @Test
-    public void colorEnable() {
-        String command;
-        String expectedResultMessage;
-
-        /* Case: enable highlighting feature with leading spaces and trailing space
-         */
-        assertCommandSuccess("   " + ColorKeywordCommand.COMMAND_WORD + " enable   ");
-
-        /* Case: enable highlighting feature when already enabled
-         */
-        assertCommandSuccess("   " + ColorKeywordCommand.COMMAND_WORD + " enable   ");
-
-        /* Case: attempt to enable highlighting command keyword that are undefined */
-        command = ColorKeywordCommand.COMMAND_WORD + " " + "Enabled";
-        expectedResultMessage = String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
-                ColorKeywordCommand.MESSAGE_USAGE);
-        assertCommandFailure(command, expectedResultMessage);
-
-        /* Case: disable highlighting feature with leading spaces and trailing space
-         */
-        assertCommandSuccess("   " + ColorKeywordCommand.COMMAND_WORD + " disable   ");
-
-        /* Case: disable highlighting feature when already disabled
-         */
-        assertCommandSuccess("   " + ColorKeywordCommand.COMMAND_WORD + " disable   ");
-
-        /* Case: attempt to disable highlighting command keyword that are undefined */
-        command = ColorKeywordCommand.COMMAND_WORD + " " + "Disabled";
-        expectedResultMessage = String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT,
-                ColorKeywordCommand.MESSAGE_USAGE);
-        assertCommandFailure(command, expectedResultMessage);
-
-
-        /* Case: mixed case command word -> rejected */
-        assertCommandFailure("EnaBle", MESSAGE_UNKNOWN_COMMAND);
-
-        /* Case: Wrong command word -> rejected */
-        assertCommandFailure("enabledisable", MESSAGE_UNKNOWN_COMMAND);
-    }
-
-    /**
-     * Executes {@code command} and verifies that the command box displays an empty string, the result display
-     * box displays {@code ColorKeywordCommand#MESSAGE_SUCCESS} and the model related components equal to an
-     * empty model.
-     * These verifications are done by
-     * {@code AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)}.<br>
-     * Also verifies that the command box has the default style class and the status bar's sync status changes.
-     * @see AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)
-     */
-    private void assertCommandSuccess(String command) {
-        String text;
-        if (command.contains("enable")) {
-            text = ColorKeywordCommand.ENABLE_COLOR + ColorKeywordCommand.MESSAGE_SUCCESS;
-        } else {
-            text = ColorKeywordCommand.DISABLE_COLOR + ColorKeywordCommand.MESSAGE_SUCCESS;
+    private static Code initCode(String name) {
+        Code code = null;
+        try {
+            code = new Code(name);
+        } catch (IllegalValueException e) {
+            e.printStackTrace();
         }
-
-        assertCommandSuccess(command, text, getModel());
-        assertStatusBarUnchanged();
-
-
+        return code;
     }
 
-    /**
-     * Performs the same verification as {@code assertCommandSuccess(String)} except that the result box displays
-     * {@code expectedResultMessage} and the model related components equal to {@code expectedModel}.
-     * @see ColorEnableSystemTest # assertCommandSuccess(String)
-     */
-    private void assertCommandSuccess(String command, String expectedResultMessage, Model expectedModel) {
-        executeCommand(command);
-        assertApplicationDisplaysExpected("", expectedResultMessage, expectedModel);
-        assertCommandBoxShowsDefaultStyle();
-        assertStatusBarUnchanged();
-    }
 
-    /**
-     * Executes {@code command} and verifies that the command box displays {@code command}, the result display
-     * box displays {@code expectedResultMessage} and the model related components equal to the current model.
-     * These verifications are done by
-     * {@code AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)}.<br>
-     * Also verifies that the browser url, selected card and status bar remain unchanged, and the command box has the
-     * error style.
-     * @see AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)
-     */
-    private void assertCommandFailure(String command, String expectedResultMessage) {
-        Model expectedModel = getModel();
-
-        executeCommand(command);
-        assertApplicationDisplaysExpected(command, expectedResultMessage, expectedModel);
-        assertSelectedCardUnchanged();
-        assertCommandBoxShowsErrorStyle();
-        assertStatusBarUnchanged();
-    }
 }
 ```
