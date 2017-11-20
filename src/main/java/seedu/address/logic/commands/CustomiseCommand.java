@@ -18,17 +18,21 @@ import seedu.address.model.font.FontSize;
  */
 public class CustomiseCommand extends Command {
     public static final String COMMAND_WORD = "customise";
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Customise the look of the Address Book application. "
-            + "Parameters: "
-            + PREFIX_FONT_SIZE + "FONT-SIZE\n"
-            + "Example: " + COMMAND_WORD + " "
-            + PREFIX_FONT_SIZE + "xsmall\n";
-    public static final String MESSAGE_SUCCESS = "Changed font size to ";
     public static final String FONT_SIZE_XSMALL = "xsmall";
     public static final String FONT_SIZE_SMALL = "small";
     public static final String FONT_SIZE_NORMAL = "normal";
     public static final String FONT_SIZE_LARGE = "large";
     public static final String FONT_SIZE_XLARGE = "xlarge";
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Customise the look of the Address Book application. "
+            + "Parameters: "
+            + FONT_SIZE_XSMALL + "/"
+            + FONT_SIZE_SMALL + "/"
+            + FONT_SIZE_NORMAL + "/"
+            + FONT_SIZE_LARGE + "/"
+            + FONT_SIZE_XLARGE + "\n"
+            + "Example: " + COMMAND_WORD + " "
+            + PREFIX_FONT_SIZE + "xsmall\n";
+    public static final String MESSAGE_SUCCESS = "Changed font size to ";
 
     private final FontSize fontSize;
 
